@@ -28,6 +28,7 @@ import org.junit.Test;
 
 public class MyTest {
 
+    // 全局会话工厂,负责创建SqlSession对象.
     SqlSessionFactory sqlSessionFactory = null;
 
     @Before
@@ -36,12 +37,14 @@ public class MyTest {
       // SqlSessionFactory:负责创建SqlSession对象的工厂
       // SqlSession:表示跟数据库建议的一次会话
       String resource = "mybatis-config.xml";
+      // 获取配置文件输入字节流对象.
       InputStream inputStream = null;
       try {
         inputStream = Resources.getResourceAsStream(resource);
       } catch (IOException e) {
         e.printStackTrace();
       }
+      // 创建全局SqlSessionFactory对象(全局会话工厂,负责创建SqlSession对象).
       sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
     }
 
