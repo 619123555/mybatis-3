@@ -25,6 +25,16 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
+ *
+ * 用于加载本地DTD文件,不需要通过互联网获取DTD文件,来验证xml合法性.
+ *
+ * XML(可扩展标记语言)文件映射实体解析器.
+ * 通过apache的SAX框架解析xml文件.
+ *  通过dtd文件或xsd文件(这种比较多)指定xml属性格式.
+ *
+ * 这个类的名字并不准确，因为它被两个类都用到了（XMLConfigBuilder,XMLMapperBuilder）
+ *
+ *
  * Offline entity resolver for the MyBatis DTDs.
  *
  * @author Clinton Begin

@@ -48,14 +48,20 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 
 /**
+ * XML配置构建器,继承baseBuilder(建造者模式).
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
+  // 标记是否已经解析过mybatis-config.xml配置文件.
   private boolean parsed;
+  // 用于解析mybatis-config.xml配置文件的XPathParser对象.
   private final XPathParser parser;
+  // 保存mybatis-config.xml中environment标签配置的名称.
   private String environment;
+  // ReflectorFactory负责创建和缓存Reflector对象.
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
   public XMLConfigBuilder(Reader reader) {
@@ -66,7 +72,9 @@ public class XMLConfigBuilder extends BaseBuilder {
     this(reader, environment, null);
   }
 
+  // 转换成XPathParser对象再去调用构造函数.
   public XMLConfigBuilder(Reader reader, String environment, Properties props) {
+    // 构造一个需要验证的XPathParser对象.
     this(new XPathParser(reader, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
@@ -79,32 +87,48 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
+    // 构建一个需要验证的XPathParser对象(这个过程会将配置文件的输入字节流转换为Document对象),并调用下一个构造方法.
     this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
+  // 上面的6个构造函数最后都会走到这个函数,传入XPathParser对象.
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
+    // 创建Configuration对象(这个过程初始化了很多属性),将Configuration对象交给父类(BaseBuilder)的构造方法.
     super(new Configuration());
+    // 错误上下文设置成SQL Mapper Configuration(xml文件配置).
     ErrorContext.instance().resource("SQL Mapper Configuration");
+    // 将Properties全部设置到configuration里面去.
     this.configuration.setVariables(props);
+    // 标记mybatis-config.xml文件为未被解析状态.
     this.parsed = false;
+    // 保存mybatis-config.xml文件中定义的环境名称.
     this.environment = environment;
+    // 保存XPathParser解析器对象.
     this.parser = parser;
   }
 
+  // 解析mybatis-config.xml配置文件中的属性.
   public Configuration parse() {
+    // 如果处于已解析过的状态,则抛出异常.
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
+    // 标记mybatis-config.xml配置文件已被解析过.
     parsed = true;
+    // 解析mybatis-config.xml配置文件中的Configuration标签.
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
 
+  // 解析Configuration标签.
   private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first
+      // 解析properties标签.
       propertiesElement(root.evalNode("properties"));
+      // 解析settings标签.
       Properties settings = settingsAsProperties(root.evalNode("settings"));
+      // 设置vfsImpl字段.
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
       typeAliasesElement(root.evalNode("typeAliases"));
@@ -124,12 +148,16 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   private Properties settingsAsProperties(XNode context) {
+    // 如果不存在settings标签,则返回空Properties对象.
     if (context == null) {
       return new Properties();
     }
+    // 解析settings标签所有子节点的name和value属性,并添加到properties对象中.
     Properties props = context.getChildrenAsProperties();
     // Check that all settings are known to the configuration class
+    // 创建configuration对应的MetaClass对象.
     MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
+    // 检测Configuration中是否定义了key指定属性的setter方法.
     for (Object key : props.keySet()) {
       if (!metaConfig.hasSetter(String.valueOf(key))) {
         throw new BuilderException("The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
@@ -220,22 +248,30 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   private void propertiesElement(XNode context) throws Exception {
+    // 如果Configuration标签中存在properties标签.
     if (context != null) {
+      // 获取properties标签所有子节点的name和value属性,并添加到Properties对象中(Properties对象是HashTable的子类).
       Properties defaults = context.getChildrenAsProperties();
+      // 解析properties标签中的resource和url属性,这两个属性用于确定properties配置文件的位置.
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
+      // resource和url只能同时存在一个.
       if (resource != null && url != null) {
         throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
       }
       if (resource != null) {
+        // 通过resource获取.properties文件,并将获取到的name和value添加到Properties对象中.
         defaults.putAll(Resources.getResourceAsProperties(resource));
       } else if (url != null) {
+        // 通过url获取.properties文件,并将获取到的name和value添加到Properties对象中.
         defaults.putAll(Resources.getUrlAsProperties(url));
       }
+      // 将所有name和value,添加到Configuration对象中的variables对象中.
       Properties vars = configuration.getVariables();
       if (vars != null) {
         defaults.putAll(vars);
       }
+      // 更新XPathParser和Configuration的variables字段.
       parser.setVariables(defaults);
       configuration.setVariables(defaults);
     }

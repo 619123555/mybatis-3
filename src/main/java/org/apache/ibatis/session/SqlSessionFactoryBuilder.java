@@ -26,12 +26,15 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
+ * 创建SqlSession对象的工厂对象.
+ *
  * Builds {@link SqlSession} instances.
  *
  * @author Clinton Begin
  */
 public class SqlSessionFactoryBuilder {
 
+  // 以下四个方法是通过Reader对象来创建SqlSessionFactory对象.
   public SqlSessionFactory build(Reader reader) {
     return build(reader, null, null);
   }
@@ -60,6 +63,7 @@ public class SqlSessionFactoryBuilder {
     }
   }
 
+  // 以下四个方法是通过InputStream来创建SqlSessionFactory对象.
   public SqlSessionFactory build(InputStream inputStream) {
     return build(inputStream, null, null);
   }
@@ -72,8 +76,12 @@ public class SqlSessionFactoryBuilder {
     return build(inputStream, null, properties);
   }
 
+  // inputStream: 配置文件输入字节流对象.
+  // environment: 要使用的环境名称(开发,测试,生产环境的数据源和事务管理器).
+  // properties:
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
+      // 将mybatis-config.xml配置文件加载到内存中,并转换成document对象,同时初始化Configuration对象及默认属性.
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
       return build(parser.parse());
     } catch (Exception e) {
