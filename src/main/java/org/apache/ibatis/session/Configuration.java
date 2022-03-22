@@ -231,7 +231,7 @@ public class Configuration {
   }
 
   public Configuration() {
-    // 将各个类的别名和类型,注册到typeAliasRegistry中.
+    // 将别名和各个类型对象,注册到typeAliasRegistry中.
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
 

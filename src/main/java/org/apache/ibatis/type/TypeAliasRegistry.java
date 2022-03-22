@@ -127,24 +127,29 @@ public class TypeAliasRegistry {
     }
   }
 
+  // 扫描指定包名下的class文件,并将所有的普通类(排除内部类,接口,抽象类)添加到类型别名注册器中.
   public void registerAliases(String packageName) {
     registerAliases(packageName, Object.class);
   }
 
   public void registerAliases(String packageName, Class<?> superType) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
+    // 查找指定包下的superType类型的类.
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
     Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
     for (Class<?> type : typeSet) {
       // Ignore inner classes and interfaces (including package-info.java)
       // Skip also inner classes. See issue #6
+      // 排除掉是内部类,接口,抽象类的class文件.
       if (!type.isAnonymousClass() && !type.isInterface() && !type.isMemberClass()) {
+        // 将符合条件的类全部添加到类型别名注册器中.
         registerAlias(type);
       }
     }
   }
 
   public void registerAlias(Class<?> type) {
+    // 将该类的简称 或 @Alias注解中的定义的别名,与Class添加到类型别名注册器中.
     String alias = type.getSimpleName();
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {

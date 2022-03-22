@@ -483,7 +483,7 @@ public final class TypeHandlerRegistry {
   }
 
   // scan
-  // 自动扫描指定包下的TypeHandler实现类并完成注册.
+  // 扫描指定包下的TypeHandler实现类并完成注册.
   public void register(String packageName) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     // 查找指定包下的TypeHandler接口实现类.

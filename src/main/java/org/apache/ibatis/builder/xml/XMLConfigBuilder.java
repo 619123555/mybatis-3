@@ -97,7 +97,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     super(new Configuration());
     // 错误上下文设置成SQL Mapper Configuration(xml文件配置).
     ErrorContext.instance().resource("SQL Mapper Configuration");
-    // 将Properties全部设置到configuration里面去.
+    // 将输入进来的Properties全部添加到configuration中的variables对象中.
     this.configuration.setVariables(props);
     // 标记mybatis-config.xml文件为未被解析状态.
     this.parsed = false;
@@ -126,21 +126,27 @@ public class XMLConfigBuilder extends BaseBuilder {
       // issue #117 read properties first
       // 解析properties标签,将获取到的属性添加到Configuration中的variables属性中.
       propertiesElement(root.evalNode("properties"));
-      // 解析settings标签,并检测Configuration中是否定义了settings子标签中指定的属性名的setter()方法,如果没有则抛出异常.
+      // 解析settings标签,并检测在Configuration中是否定义了settings子标签中指定的属性名的setter()方法,如果没有则抛出异常.
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       // 根据用户在settings中指定的vfsImpl属性值,来设置指定的虚拟文件系统的具体实现类.
       loadCustomVfs(settings);
       // 根据用户在settings中指定的logImpl属性值,来设置指定的日志实现类.
       loadCustomLogImpl(settings);
+      // 解析typeAliases标签.
+      //  package: 将包名下的所有普通类(排除内部类,接口,抽象类),由@Alias注解中定义的value属性或Class类名的简称作为别名,添加到类型别名注册器中.
+      //  other: alias-type: 将指定的别名与类型,添加到类型别名注册器中,如果alias不存在,则由@Alias注解中定义的value属性或Class类名的简称作为别名.
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 解析plugins标签,将每个plugin标签中定义的拦截器实例化,并添加到Configuration中的拦截器链对象中.
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
+      // 将settings标签中设置的各个属性,设置到Configuration对象中.
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      // 解析typeHandlers标签,将typeHandlers标签中定义的类型处理程序添加到typeHandlerRegistry中.
       typeHandlerElement(root.evalNode("typeHandlers"));
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
@@ -188,18 +194,23 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void typeAliasesElement(XNode parent) {
     if (parent != null) {
+      // 遍历typeAliases标签的所有子标签.
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
+          // 如果子标签为package,则扫描该标签中的name属性指定的包名下的所有class文件,将所有普通类(排除内部类,接口,抽象类)添加到类型别名注册器中.
           String typeAliasPackage = child.getStringAttribute("name");
           configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
         } else {
+          // 否则获取alias属性和type属性.
           String alias = child.getStringAttribute("alias");
           String type = child.getStringAttribute("type");
           try {
             Class<?> clazz = Resources.classForName(type);
             if (alias == null) {
+              // 如果没有指定别名,则使用该Class的简称作为别名,与该Class对象一起添加到类型别名注册器中.
               typeAliasRegistry.registerAlias(clazz);
             } else {
+              // 将别名与该Class对象添加到类型别名注册器中.
               typeAliasRegistry.registerAlias(alias, clazz);
             }
           } catch (ClassNotFoundException e) {
@@ -212,11 +223,17 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void pluginElement(XNode parent) throws Exception {
     if (parent != null) {
+      // 遍历plugins标签的子标签,plugin.
       for (XNode child : parent.getChildren()) {
+        // 获取子标签中的interceptor属性的值.
         String interceptor = child.getStringAttribute("interceptor");
+        // 获取plugin内的所有property标签中定义的name-value.
         Properties properties = child.getChildrenAsProperties();
+        // 根据别名获取Class对象,获取不到则使用类加载器去加载该class文件,并获取该Class的实例对象.
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).getDeclaredConstructor().newInstance();
+        // 将plugin内的所有property标签中定义的name-value存储到拦截器对象中.
         interceptorInstance.setProperties(properties);
+        // 将该拦截器对象添加到拦截器链中.
         configuration.addInterceptor(interceptorInstance);
       }
     }
