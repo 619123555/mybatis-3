@@ -100,45 +100,86 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  */
 public class Configuration {
 
+  // 当前环境对象,该对象中包含了环境名称,事务工厂对象,数据源对象.
   protected Environment environment;
 
+  // 是否允许在嵌套语句中使用分页(RowBounds),如果允许则设置为false.
   protected boolean safeRowBoundsEnabled;
+  // 是否允许在嵌套语句中使用结果处理器(ResultHandler),如果允许使用则设置为false.
   protected boolean safeResultHandlerEnabled = true;
+  // 是否开启驼峰命名自动映射,即从经典数据库列名 A_COLUMN 映射到经典Java属性名 aColumn.
   protected boolean mapUnderscoreToCamelCase;
+  // 开启时,任一方法的调用都会加载该对象的所有延迟加载属性.
   protected boolean aggressiveLazyLoading;
+  // 是否允许单个语句返回多结果集.
   protected boolean multipleResultSetsEnabled = true;
+  // 允许JDBC自动生成主键,需要数据库驱动支持.
   protected boolean useGeneratedKeys;
+  // 使用列标签代替列名,实际表现依赖于数据库驱动,具体可参考数据库驱动的相关文档.
   protected boolean useColumnLabel = true;
+  // 开启或关闭全局缓存,如果关闭,所有配置的缓存都将失效.
   protected boolean cacheEnabled = true;
+  // 指定当结果集中,值为null时,是否调用实体对象的setter(map对象时为put)方法,这在依赖于Map.keySet()或null值进行初始化时比较有用,注意基本类型(int,boolean等)是不能设置成null的.
   protected boolean callSettersOnNulls;
+  // 允许使用方法签名中的名称作为语句参数名称(项目必须使用Java8编译,并且启动时加上-parameters参数,新增于3.4.1).
   protected boolean useActualParamName = true;
+  // 当结果集返回行的所有列都是空时,MyBatis默认返回null.
+  // 设置为true后,MyBatis会返回一个空实例.
+  //  注意:包括嵌套对象也是一个空实例对象(如集合或实体对象).
   protected boolean returnInstanceForEmptyRow;
   protected boolean shrinkWhitespacesInSql;
 
+  // 输出的日志中的类名,增加指定前缀.
   protected String logPrefix;
+  // 指定日志的具体实现类,未指定时将自动查找(SLF4J | LOG4J | LOG4J2 | JDK_LOGGING | COMMONS_LOGGING | STDOUT_LOGGING | NO_LOGGING).
   protected Class<? extends Log> logImpl;
+  // 指定VFS(虚拟文件系统)的实现类(自定义VFS的实现类的全局限定名).
   protected Class<? extends VFS> vfsImpl;
   protected Class<?> defaultSqlProviderType;
+  // 利用本地缓存机制(Local Cache)防止循环引用和加速重复的嵌套查询.
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+  // 没有为参数指定特定的JDBC类型时,默认的JDBC类型.
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
+  // 指定对象的哪些方法触发一次延迟加载.
   protected Set<String> lazyLoadTriggerMethods = new HashSet<>(Arrays.asList("equals", "clone", "hashCode", "toString"));
+  // 设置超时时间,它决定数据库驱动等待数据库响应的秒数.
   protected Integer defaultStatementTimeout;
+  // 为数据库驱动的结果集获取数量(fetchSize)设置一个建议值,此参数只可以在查询设置中被覆盖.
   protected Integer defaultFetchSize;
+  // 指定结果集的滚动策略???????.
   protected ResultSetType defaultResultSetType;
+  // 执行器类型.
+  //  SIMPLE: 普通执行器,执行每个语句时,都会创建一个新的预处理语句.
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+  // 指定MyBatis应如何自动映射数据库字段到实体类属性的行为.
+  //  PARTIAL: 只会自动映射没有定义嵌套结果映射的字段.
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
+  // 指定MyBatis自动映射数据库字段到实体类属性发现无法识别(无法找到)目标实体类属性时的行为.
+  //  NONE: 不做任何反应.
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
+  //---------以上都是<settings>节点-------
+
+
+  // 存储全局所有k-v属性.
+  //  1.Configuration -> properties标签中定义的k-v属性.
+  //  2.properties文件中定义的k-v属性.
   protected Properties variables = new Properties();
+  // 反射工厂.
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+  // 对象工厂.
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
+  // 对象包装器工厂.
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
+  // 延迟加载的全局开关. 当开启时,所有关联对象都会延迟加载.
   protected boolean lazyLoadingEnabled = false;
   protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
 
   protected String databaseId;
   /**
+   * 指定一个提供Configuration实例的类的全局限定名,这个被返回的Configuration实例用来加载被反序列化对象的延迟加载属性值.
+   *
    * Configuration factory class.
    * Used to create Configuration for loading deserialized unread properties.
    *
@@ -146,16 +187,24 @@ public class Configuration {
    */
   protected Class<?> configurationFactory;
 
+  // Mapper接口与MapperProxyFactory映射关系注册器.
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  // 存储所有拦截器的对象.
   protected final InterceptorChain interceptorChain = new InterceptorChain();
+  // 类型处理程序注册器,存储各个jdbc类型与Java类型的对应关系,以及各个类型互相转换时,对应的类型处理程序实例对象,该对象被创建时会初始化mybatis内置的类型处理器对象.
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
+  // 类型别名注册器,存储字符串别名与Class对象的绑定关系,该对象被创建时会初始化一些基础的别名和类型的绑定关系.
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+  // 脚本语言注册器.
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
+  // 通过类的全局限定符+方法名,找到存储了对应sql语句的MappedStatement对象.
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
+  // 缓存.
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
+  // 结果映射,存在Map里.
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
@@ -163,6 +212,7 @@ public class Configuration {
   protected final Set<String> loadedResources = new HashSet<>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
+  // 不完整的SQL语句.
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
@@ -181,6 +231,7 @@ public class Configuration {
   }
 
   public Configuration() {
+    // 将各个类的别名和类型,注册到typeAliasRegistry中.
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
 
@@ -210,6 +261,7 @@ public class Configuration {
     typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
     typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
 
+    //
     languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
     languageRegistry.register(RawLanguageDriver.class);
   }

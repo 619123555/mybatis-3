@@ -33,6 +33,11 @@ import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 类型别名注册器.
+ * 将字符串别名与Class对象绑定,主要作用是为了降低书写全局限定符的成本.
+ * 将类型与别名绑定后,可在任何需要书写全局限定符的地方使用别名.
+ *
+ *
  * @author Clinton Begin
  */
 public class TypeAliasRegistry {
@@ -40,6 +45,7 @@ public class TypeAliasRegistry {
   private final Map<String, Class<?>> typeAliases = new HashMap<>();
 
   public TypeAliasRegistry() {
+    // 注册一些基础的 类型与别名 的绑定关系.
     registerAlias("string", String.class);
 
     registerAlias("byte", Byte.class);

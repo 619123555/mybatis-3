@@ -21,13 +21,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * 类型处理程序根接口.
+ *
  * @author Clinton Begin
  */
 public interface TypeHandler<T> {
 
+  // 在通过PreparedStatement为SQL语句绑定参数时,会调用该方法将数据由Java类型转换成JdbcType类型.
   void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
   /**
+   * 从ResultSet中获取数据时会调用此方法,将数据由JdbcType类型转换成Java类型.
+   *
    * Gets the result.
    *
    * @param rs

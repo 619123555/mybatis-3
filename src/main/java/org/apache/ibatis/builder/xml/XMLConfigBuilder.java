@@ -87,7 +87,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
-    // 构建一个需要验证的XPathParser对象(这个过程会将配置文件的输入字节流转换为Document对象),并调用下一个构造方法.
+    // 构建一个需要验证的XPathParser对象(这个过程会将配置文件的输入字节流转换为Document对象),并调用当前对象的下一个构造方法.
     this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
@@ -124,12 +124,13 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first
-      // 解析properties标签.
+      // 解析properties标签,将获取到的属性添加到Configuration中的variables属性中.
       propertiesElement(root.evalNode("properties"));
-      // 解析settings标签.
+      // 解析settings标签,并检测Configuration中是否定义了settings子标签中指定的属性名的setter()方法,如果没有则抛出异常.
       Properties settings = settingsAsProperties(root.evalNode("settings"));
-      // 设置vfsImpl字段.
+      // 根据用户在settings中指定的vfsImpl属性值,来设置指定的虚拟文件系统的具体实现类.
       loadCustomVfs(settings);
+      // 根据用户在settings中指定的logImpl属性值,来设置指定的日志实现类.
       loadCustomLogImpl(settings);
       typeAliasesElement(root.evalNode("typeAliases"));
       pluginElement(root.evalNode("plugins"));
@@ -152,12 +153,12 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (context == null) {
       return new Properties();
     }
-    // 解析settings标签所有子节点的name和value属性,并添加到properties对象中.
+    // 解析settings标签所有子节点的name和value属性,并封装到properties对象中.
     Properties props = context.getChildrenAsProperties();
     // Check that all settings are known to the configuration class
     // 创建configuration对应的MetaClass对象.
     MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
-    // 检测Configuration中是否定义了key指定属性的setter方法.
+    // 遍历props对象,检测Configuration中是否定义了指定的属性名的setter()方法.
     for (Object key : props.keySet()) {
       if (!metaConfig.hasSetter(String.valueOf(key))) {
         throw new BuilderException("The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
@@ -266,12 +267,13 @@ public class XMLConfigBuilder extends BaseBuilder {
         // 通过url获取.properties文件,并将获取到的name和value添加到Properties对象中.
         defaults.putAll(Resources.getUrlAsProperties(url));
       }
-      // 将所有name和value,添加到Configuration对象中的variables对象中.
+      // 获取Configuration对象中的variables属性中的所有k-v属性.
       Properties vars = configuration.getVariables();
       if (vars != null) {
+        // 将Configuration对象中的variables属性中的所有k-v属性添加到defaults中.
         defaults.putAll(vars);
       }
-      // 更新XPathParser和Configuration的variables字段.
+      // 刷新XPathParser和Configuration中的variables属性.
       parser.setVariables(defaults);
       configuration.setVariables(defaults);
     }

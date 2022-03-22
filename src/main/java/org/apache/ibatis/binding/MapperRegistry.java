@@ -27,26 +27,34 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * Mapper接口与MapperProxyFactory映射关系注册器.
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
  */
 public class MapperRegistry {
 
+  // configuration对象,mybatis全局唯一的配置对象,其中包含了所有配置信息.
   private final Configuration config;
+  // 记录了Mapper接口与对应MapperProxyFactory之间的关系.
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
     this.config = config;
   }
 
+  // 返回代理类对象.
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    // 查找指定Class对应MapperProxyFactory对象.
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+    // 如果mapperProxyFactory为空,则抛出异常.
     if (mapperProxyFactory == null) {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
     try {
+      // 创建实现了type接口的代理对象.
       return mapperProxyFactory.newInstance(sqlSession);
     } catch (Exception e) {
       throw new BindingException("Error getting mapper instance. Cause: " + e, e);
@@ -57,6 +65,7 @@ public class MapperRegistry {
     return knownMappers.containsKey(type);
   }
 
+  // 添加映射
   public <T> void addMapper(Class<T> type) {
     if (type.isInterface()) {
       if (hasMapper(type)) {

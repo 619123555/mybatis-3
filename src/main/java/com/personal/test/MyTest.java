@@ -34,8 +34,8 @@ public class MyTest {
     @Before
     public void init(){
       // 根据全局配置文件创建出SqlSessionFactory
-      // SqlSessionFactory:负责创建SqlSession对象的工厂
-      // SqlSession:表示跟数据库建议的一次会话
+      // SqlSessionFactory: 负责创建SqlSession对象的工厂.
+      // SqlSession: 跟数据库建立的会话对象.
       String resource = "mybatis-config.xml";
       // 获取配置文件输入字节流对象.
       InputStream inputStream = null;
@@ -44,7 +44,7 @@ public class MyTest {
       } catch (IOException e) {
         e.printStackTrace();
       }
-      // 创建全局SqlSessionFactory对象(全局会话工厂,负责创建SqlSession对象).
+      // 创建持有Configuration对象的DefaultSqlSessionFactory对象(全局会话工厂,负责创建SqlSession对象).
       sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
     }
 

@@ -20,6 +20,8 @@ import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.MappedStatement;
 
 /**
+ * 定义 MyBatis自动映射数据库字段到实体类属性时发现无法识别(无法找到)目标实体类属性时 的行为.
+ *
  * Specify the behavior when detects an unknown column (or unknown property type) of automatic mapping target.
  *
  * @since 3.4.0
@@ -28,6 +30,8 @@ import org.apache.ibatis.mapping.MappedStatement;
 public enum AutoMappingUnknownColumnBehavior {
 
   /**
+   * 不做任何处理.
+   *
    * Do nothing (Default).
    */
   NONE {
@@ -38,6 +42,8 @@ public enum AutoMappingUnknownColumnBehavior {
   },
 
   /**
+   * 输出警告日志('org.apache.ibatis.session.AutoMappingUnknownColumnBehavior'的日志等级必须设置为WARN).
+   *
    * Output warning log.
    * Note: The log level of {@code 'org.apache.ibatis.session.AutoMappingUnknownColumnBehavior'} must be set to {@code WARN}.
    */
@@ -49,6 +55,8 @@ public enum AutoMappingUnknownColumnBehavior {
   },
 
   /**
+   * 映射失败(抛出 SqlSessionException).
+   *
    * Fail mapping.
    * Note: throw {@link SqlSessionException}.
    */

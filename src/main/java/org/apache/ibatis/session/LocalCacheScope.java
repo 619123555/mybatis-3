@@ -19,5 +19,7 @@ package org.apache.ibatis.session;
  * @author Eduardo Macarron
  */
 public enum LocalCacheScope {
+  // SESSION: 缓存一个会话(SqlSession)中执行的所有查询.
+  // STATEMENT: 本地缓存仅用于执行语句,对相同SqlSession的不同查询将不会进行缓存.
   SESSION,STATEMENT
 }

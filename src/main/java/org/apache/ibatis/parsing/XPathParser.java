@@ -54,7 +54,8 @@ public class XPathParser {
   private boolean validation;
   // 用于加载本地DTD文件.
   private EntityResolver entityResolver;
-  // mybatis-config.xml中Configuration -> properties标签定义的键值对集合.
+  // 1.mybatis-config.xml中Configuration -> properties标签定义的键值对.
+  // 2.properties文件中定义的键值对.
   private Properties variables;
   // Xpath对象.
   private XPath xpath;
@@ -146,7 +147,7 @@ public class XPathParser {
     this.document = document;
   }
 
-  // 17 设置Properties类型的variables对象.
+  // 设置Properties类型的variables对象.
   public void setVariables(Properties variables) {
     this.variables = variables;
   }
