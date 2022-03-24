@@ -483,10 +483,10 @@ public final class TypeHandlerRegistry {
   }
 
   // scan
-  // 扫描指定包下的TypeHandler实现类并完成注册.
+  // 扫描指定包下实现了TypeHandler接口的Class,并添加到类型处理程序注册器中.
   public void register(String packageName) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
-    // 查找指定包下的TypeHandler接口实现类.
+    // 查找指定包下实现了TypeHandler接口的Class.
     resolverUtil.find(new ResolverUtil.IsA(TypeHandler.class), packageName);
     Set<Class<? extends Class<?>>> handlerSet = resolverUtil.getClasses();
     for (Class<?> type : handlerSet) {

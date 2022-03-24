@@ -114,7 +114,9 @@ public class MapperAnnotationBuilder {
 
   public void parse() {
     String resource = type.toString();
+    // 检测是否已经加载过该接口.
     if (!configuration.isResourceLoaded(resource)) {
+      // 检测是否加载过对应的映射配置文件，如果未加载，则创建XMLMapperBuilder对象解析对应的映射文件
       loadXmlResource();
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());
@@ -162,13 +164,17 @@ public class MapperAnnotationBuilder {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
+    // Configuration中的loadedResources属性中存储了已加载过的namespace.
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
+      // 根据Class的全局限定名的路径去找对应的xml文件.
       String xmlResource = type.getName().replace('.', '/') + ".xml";
       // #1347
+      // 加载Mapper接口对应的xml文件输入字节流.
       InputStream inputStream = type.getResourceAsStream("/" + xmlResource);
       if (inputStream == null) {
         // Search XML mapper that is not in the module but in the classpath.
         try {
+          // 如果根据Class的全局限定名的路径找不到对应的xml文件,则去classpath目录下获取对应的xml文件.
           inputStream = Resources.getResourceAsStream(type.getClassLoader(), xmlResource);
         } catch (IOException e2) {
           // ignore, resource is not required

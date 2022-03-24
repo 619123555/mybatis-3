@@ -67,12 +67,15 @@ public class MapperRegistry {
 
   // 添加映射
   public <T> void addMapper(Class<T> type) {
+    // 只会处理接口.
     if (type.isInterface()) {
+      // 检测是否已经处理过该Class.
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
       }
       boolean loadCompleted = false;
       try {
+        // 将Mapper接口的Class对象与创建的映射代理工厂类添加到knownMappers中.
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
@@ -108,10 +111,12 @@ public class MapperRegistry {
    * @since 3.2.2
    */
   public void addMappers(String packageName, Class<?> superType) {
+    // 查找指定包名下的所有接口类,并添加到映射关系注册器中.
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
     Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getClasses();
     for (Class<?> mapperClass : mapperSet) {
+      // 添加到映射关系注册器中.
       addMapper(mapperClass);
     }
   }

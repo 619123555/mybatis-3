@@ -50,10 +50,13 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
+ * 映射构建器助手,继承BaseBuilder(建造者模式).
+ *
  * @author Clinton Begin
  */
 public class MapperBuilderAssistant extends BaseBuilder {
 
+  // 每个助手都有1个namespace,resource,cache.
   private String currentNamespace;
   private final String resource;
   private Cache currentCache;

@@ -146,8 +146,11 @@ public class XMLConfigBuilder extends BaseBuilder {
       // read it after objectFactory and objectWrapperFactory issue #631
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
-      // 解析typeHandlers标签,将typeHandlers标签中定义的类型处理程序添加到typeHandlerRegistry中.
+      // 解析typeHandlers标签.
+      //  package: 将包名下实现了TypeHandler接口的所有普通类(排除内部类,接口,抽象类,最好使用@MappedJdbcTypes和@MappedTypes注解),添加到类型处理程序注册器中.
+      //  other: javaType-jdbcType-handler: 将指定的类型处理程序类和对应可处理的jdbc类型,java类型,添加到类型处理程序注册器中.
       typeHandlerElement(root.evalNode("typeHandlers"));
+      // 解析mappers标签.
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -421,6 +424,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
+          // 获取指定包名下的接口类,并添加到映射关系注册器中.
           configuration.addMappers(mapperPackage);
         } else {
           String resource = child.getStringAttribute("resource");
