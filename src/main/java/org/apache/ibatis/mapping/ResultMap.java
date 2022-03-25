@@ -32,27 +32,42 @@ import org.apache.ibatis.reflection.ParamNameUtil;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 结果映射对象.
+ * MyBatis中最重要最强大的元素.
+ *
  * @author Clinton Begin
  */
 public class ResultMap {
   private Configuration configuration;
 
+  // resultMap节点的id属性.
   private String id;
+  // resultMap节点的type属性.
   private Class<?> type;
+  // 记录了除discrimination节点之外的其他映射关系.
   private List<ResultMapping> resultMappings;
+  // 记录了映射关系中带有ID标志的映射关系.
   private List<ResultMapping> idResultMappings;
+  // 记录了映射关系中带有constructor标志的映射关系.
   private List<ResultMapping> constructorResultMappings;
+  // 记录了映射关系中不带有constructor标志的映射关系.
   private List<ResultMapping> propertyResultMappings;
+  // 记录了所有映射关系中设计的column属性的集合.
   private Set<String> mappedColumns;
   private Set<String> mappedProperties;
+  // 鉴别器,对应discriminator节点.
   private Discriminator discriminator;
+  // 是否含有嵌套的结果映射,如果某个映射关系中存在resultMap属性,且不存在resultSet属性,则为true.
   private boolean hasNestedResultMaps;
+  // 是否含有嵌套查询,如果某个属性映射存在select属性,则为true.
   private boolean hasNestedQueries;
+  // 是否开启自动映射.
   private Boolean autoMapping;
 
   private ResultMap() {
   }
 
+  // 静态内部类(建造者模式).
   public static class Builder {
     private static final Log log = LogFactory.getLog(Builder.class);
 

@@ -164,7 +164,7 @@ public class MapperAnnotationBuilder {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
-    // Configuration中的loadedResources属性中存储了已加载过的namespace.
+    // Configuration中的loadedResources集合中存储了已加载过的namespace.
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
       // 根据Class的全局限定名的路径去找对应的xml文件.
       String xmlResource = type.getName().replace('.', '/') + ".xml";
@@ -181,7 +181,9 @@ public class MapperAnnotationBuilder {
         }
       }
       if (inputStream != null) {
+        // 将Mapper.xml文件转为Document对象.
         XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
+        // 解析xml中的标签
         xmlParser.parse();
       }
     }

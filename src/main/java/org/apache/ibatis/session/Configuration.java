@@ -215,11 +215,15 @@ public class Configuration {
 
   // 不完整的SQL语句.
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
+  // 存储解析完缓存引用的namespace等信息.
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
   protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
   /*
+   * 存储缓存引用关系.
+   * mapper.xml中定义的cache-ref标签.
+   *
    * A map holds cache-ref relationship. The key is the namespace that
    * references a cache bound to another namespace and the value is the
    * namespace which the actual cache is bound to.

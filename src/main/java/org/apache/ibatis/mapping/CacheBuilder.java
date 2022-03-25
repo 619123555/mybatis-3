@@ -39,7 +39,9 @@ import org.apache.ibatis.reflection.SystemMetaObject;
  */
 public class CacheBuilder {
   private final String id;
+  // 默认是PerpetualCache.
   private Class<? extends Cache> implementation;
+  // 默认集合中只有一个LruCache.
   private final List<Class<? extends Cache>> decorators;
   private Integer size;
   private Long clearInterval;
@@ -90,17 +92,25 @@ public class CacheBuilder {
   }
 
   public Cache build() {
+    // 如果implementation属性和decorators集合为空,则为其设置默认值.
     setDefaultImplementations();
+    // 根据implementation指定的类型,通过反射获取参数为String类型的构造方法,并通过该构造方法创建Cache对象.
     Cache cache = newBaseCacheInstance(implementation, id);
+    // 根据cache节点下配置的property信息,初始化cache对象.
     setCacheProperties(cache);
     // issue #352, do not apply decorators to custom caches
+    // 如果cache是PerpetualCache类型,则为其添加decorators集合中的装饰器.
     if (PerpetualCache.class.equals(cache.getClass())) {
       for (Class<? extends Cache> decorator : decorators) {
+        // 通过反射获取参数为cache类型的构造方法,并通过该构造方法创建装饰器.
         cache = newCacheDecoratorInstance(decorator, cache);
+        // 配置cache对象的属性.
         setCacheProperties(cache);
       }
+      // 添加mybatis中提供的标准装饰器.
       cache = setStandardDecorators(cache);
     } else if (!LoggingCache.class.isAssignableFrom(cache.getClass())) {
+      // 如果不是LoggingCache的子类,则添加loggingCache装饰器.
       cache = new LoggingCache(cache);
     }
     return cache;
@@ -141,12 +151,17 @@ public class CacheBuilder {
 
   private void setCacheProperties(Cache cache) {
     if (properties != null) {
+      // 创建cache对象对应的MetaObject对象.
       MetaObject metaCache = SystemMetaObject.forObject(cache);
+      // 遍历cache标签下的properties标签中定义的属性.
       for (Map.Entry<Object, Object> entry : properties.entrySet()) {
         String name = (String) entry.getKey();
         String value = (String) entry.getValue();
+        // 如果存在该属性名的set方法.
         if (metaCache.hasSetter(name)) {
+          // 获取该属性的类型.
           Class<?> type = metaCache.getSetterType(name);
+          // 进行类型转换,并设置该属性.
           if (String.class == type) {
             metaCache.setValue(name, value);
           } else if (int.class == type
@@ -176,6 +191,7 @@ public class CacheBuilder {
         }
       }
     }
+    // 如果cache类继承了InitializingObject接口,则调用其initialize()方法来进行自定义的初始化操作.
     if (InitializingObject.class.isAssignableFrom(cache.getClass())) {
       try {
         ((InitializingObject) cache).initialize();

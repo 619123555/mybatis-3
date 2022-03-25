@@ -85,6 +85,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     this.currentNamespace = currentNamespace;
   }
 
+  // 为id加上namespace前缀,如selectPerson --> org.a.b.selectPerson
   public String applyCurrentNamespace(String base, boolean isReference) {
     if (base == null) {
       return null;
@@ -131,6 +132,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       boolean readWrite,
       boolean blocking,
       Properties props) {
+    // 构建一个缓存对象.
     Cache cache = new CacheBuilder(currentNamespace)
         .implementation(valueOrDefault(typeClass, PerpetualCache.class))
         .addDecorator(valueOrDefault(evictionClass, LruCache.class))
@@ -140,7 +142,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .blocking(blocking)
         .properties(props)
         .build();
+    // 将cache对象添加到Configuration中的caches集合,cache的id(namespace)作为key,cache对象本身作为value.
     configuration.addCache(cache);
+    // 记录当前命名空间使用的cache对象.
     currentCache = cache;
     return cache;
   }
@@ -176,6 +180,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .build();
   }
 
+  // 增加ResultMap.
   public ResultMap addResultMap(
       String id,
       Class<?> type,
@@ -183,17 +188,24 @@ public class MapperBuilderAssistant extends BaseBuilder {
       Discriminator discriminator,
       List<ResultMapping> resultMappings,
       Boolean autoMapping) {
+    // 为id加上namespace前缀,如selectPerson --> org.a.b.selectPerson
     id = applyCurrentNamespace(id, false);
+    // 获取被继承的resultMap的完整id,也就是父ResultMap对象的完整id.
     extend = applyCurrentNamespace(extend, true);
 
+    // 针对extend属性的处理.
     if (extend != null) {
       if (!configuration.hasResultMap(extend)) {
         throw new IncompleteElementException("Could not find a parent resultmap with id '" + extend + "'");
       }
+      // 检测configuration.resultMaps集合中是否存在被继承的ResultMap对象,获取需要被继承的ResultMap对象.
       ResultMap resultMap = configuration.getResultMap(extend);
+      // 获取父ResultMap对象中记录的ResultMapping集合.
       List<ResultMapping> extendedResultMappings = new ArrayList<>(resultMap.getResultMappings());
+      // 删除需要覆盖的ResultMapping集合.
       extendedResultMappings.removeAll(resultMappings);
       // Remove parent constructor if this resultMap declares a constructor.
+      // 如果当前resultMap节点中定义了constructor节点,则不需要使用父resultMap中记录的相应的constructor节点,则将其对应的ResultMapping对象删除.
       boolean declaresConstructor = false;
       for (ResultMapping resultMapping : resultMappings) {
         if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
@@ -204,8 +216,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
       if (declaresConstructor) {
         extendedResultMappings.removeIf(resultMapping -> resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR));
       }
+      // 添加需要被继承下来的ResultMapping对象集合.
       resultMappings.addAll(extendedResultMappings);
     }
+    // 创建ResultMap对象,并添加到configuration.resultMaps集合中保存.
     ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
         .discriminator(discriminator)
         .build();
