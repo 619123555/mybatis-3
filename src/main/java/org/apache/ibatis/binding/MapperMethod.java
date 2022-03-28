@@ -46,7 +46,9 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class MapperMethod {
 
+  // 纯粹SQL语句的名称和类型(UNKNOWN,INSERT,UPDATE,DELETE,SELECT,FLUSH).
   private final SqlCommand command;
+  // mapper接口中对应方法的相关信息.
   private final MethodSignature method;
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
@@ -222,7 +224,9 @@ public class MapperMethod {
     private final SqlCommandType type;
 
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
+      // 获取方法名称.
       final String methodName = method.getName();
+      // 获取Class对象.
       final Class<?> declaringClass = method.getDeclaringClass();
       MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,
           configuration);
@@ -274,18 +278,29 @@ public class MapperMethod {
 
   public static class MethodSignature {
 
+    // 返回值是否为Collection类型或者数组类型.
     private final boolean returnsMany;
+    // 返回值是否为Map类型.
     private final boolean returnsMap;
+    // 返回值是否为void类型.
     private final boolean returnsVoid;
+    // 返回值是否为Cursor类型.
     private final boolean returnsCursor;
+    // 返回值是否为Optional类型.
     private final boolean returnsOptional;
+    // 返回值类型.
     private final Class<?> returnType;
+    // 如果返回值类型是map,则该字段记录了作为key的列名.
     private final String mapKey;
+    // 用来标记该方法参数列表中ResultHandler类型参数的位置.
     private final Integer resultHandlerIndex;
+    // 用来标记该方法参数列表中RowBounds类型参数的位置.
     private final Integer rowBoundsIndex;
+    // 参数名称解析器.
     private final ParamNameResolver paramNameResolver;
 
     public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {
+      // 获取方法返回值类型.
       Type resolvedReturnType = TypeParameterResolver.resolveReturnType(method, mapperInterface);
       if (resolvedReturnType instanceof Class<?>) {
         this.returnType = (Class<?>) resolvedReturnType;
@@ -294,14 +309,21 @@ public class MapperMethod {
       } else {
         this.returnType = method.getReturnType();
       }
+      // 设置方法返回值为void标识.
       this.returnsVoid = void.class.equals(this.returnType);
+      // 设置方法是否为Collection类型或数组类型.
       this.returnsMany = configuration.getObjectFactory().isCollection(this.returnType) || this.returnType.isArray();
+      // 设置方法返回值是否为Cursor类型.
       this.returnsCursor = Cursor.class.equals(this.returnType);
+      // 设置方法返回值是否为Optional类型.
       this.returnsOptional = Optional.class.equals(this.returnType);
+      // 获取@MapKey注解中的value属性.
       this.mapKey = getMapKey(method);
+      // 设置方法返回值是否为Map类型.
       this.returnsMap = this.mapKey != null;
       this.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
+      // 创建参数名称解析器对象,并解析方法参数中各个参数的索引下标与参数名称的对应关系.
       this.paramNameResolver = new ParamNameResolver(configuration, method);
     }
 

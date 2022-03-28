@@ -38,6 +38,8 @@ public class ParamNameResolver {
   private final boolean useActualParamName;
 
   /**
+   * 存储方法参数索引下标与参数名称的对应关系.
+   *
    * <p>
    * The key is the index and the value is the name of the parameter.<br />
    * The name is obtained from {@link Param} if specified. When {@link Param} is not specified,
@@ -55,38 +57,51 @@ public class ParamNameResolver {
   private boolean hasParamAnnotation;
 
   public ParamNameResolver(Configuration config, Method method) {
+    // 设置是否使用参数实际名称.
     this.useActualParamName = config.isUseActualParamName();
+    // 获取参数列表中每个参数的类型.
     final Class<?>[] paramTypes = method.getParameterTypes();
+    // 获取参数列表上的注解.
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+    // 存储方法参数索引下表与参数名称的对应关系.
     final SortedMap<Integer, String> map = new TreeMap<>();
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
+    // 遍历方法中的所有参数.
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
       if (isSpecialParameter(paramTypes[paramIndex])) {
         // skip special parameters
+        // 如果参数是RowBounds类型或ResultHandler类型,则跳过对该参数的分析.
         continue;
       }
       String name = null;
+      // 遍历该参数对应的注解集合.
       for (Annotation annotation : paramAnnotations[paramIndex]) {
         if (annotation instanceof Param) {
+          // @Param注解出现过一次,就将hasParamAnnotation初始化为true.
           hasParamAnnotation = true;
+          // 获取@Param注解指定的参数名称.
           name = ((Param) annotation).value();
           break;
         }
       }
       if (name == null) {
         // @Param was not specified.
+        // 该参数没有对应的@Param注解,则根据配置决定是否使用参数实际名称作为其名称.
         if (useActualParamName) {
           name = getActualParamName(method, paramIndex);
         }
         if (name == null) {
           // use the parameter index as the name ("0", "1", ...)
           // gcode issue #71
+          // 使用参数的索引作为其名称.
           name = String.valueOf(map.size());
         }
       }
+      // 记录到map中保存.
       map.put(paramIndex, name);
     }
+    // 初始化name集合.
     names = Collections.unmodifiableSortedMap(map);
   }
 

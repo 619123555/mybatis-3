@@ -122,7 +122,7 @@ public class MapperAnnotationBuilder {
     if (!configuration.isResourceLoaded(resource)) {
       // 检测是否加载过对应的映射配置文件,如果未加载,则尝试去该Class同级目录下获取同名的.xml文件输入字节流,并创建XMLMapperBuilder对象来解析对应的映射文件(正常在这步是加载不到的).
       loadXmlResource();
-      // 将该Class的全局限定符添加到Configuration中的loadedResource集合中,标记该Class已被处理过(加载过对应的xml文件).
+      // 将该Class的全局限定符添加到Configuration中的loadedResource集合中,标记该Class已被处理过(尝试加载过对应的xml文件).
       configuration.addLoadedResource(resource);
       // 设置当前namespace.
       assistant.setCurrentNamespace(type.getName());
@@ -141,6 +141,7 @@ public class MapperAnnotationBuilder {
           parseResultMap(method);
         }
         try {
+          // 解析@SelectKey,@ResultMap等注解,并创建MappedStatement对象.
           parseStatement(method);
         } catch (IncompleteElementException e) {
           configuration.addIncompleteMethod(new MethodResolver(this, method));
@@ -313,7 +314,9 @@ public class MapperAnnotationBuilder {
   }
 
   void parseStatement(Method method) {
+    // 获取方法参数类型.
     final Class<?> parameterTypeClass = getParameterType(method);
+    // 获取语言驱动对象.
     final LanguageDriver languageDriver = getLanguageDriver(method);
 
     getAnnotationWrapper(method, true, statementAnnotationTypes).ifPresent(statementAnnotation -> {

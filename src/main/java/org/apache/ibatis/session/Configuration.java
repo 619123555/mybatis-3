@@ -117,11 +117,11 @@ public class Configuration {
   protected boolean useGeneratedKeys;
   // 使用列标签代替列名,实际表现依赖于数据库驱动,具体可参考数据库驱动的相关文档.
   protected boolean useColumnLabel = true;
-  // 开启或关闭全局缓存,如果关闭,所有配置的缓存都将失效.
+  // 开启或关闭全局缓存(二级缓存？？？？),如果关闭,所有配置的缓存都将失效.
   protected boolean cacheEnabled = true;
   // 指定当结果集中,值为null时,是否调用实体对象的setter(map对象时为put)方法,这在依赖于Map.keySet()或null值进行初始化时比较有用,注意基本类型(int,boolean等)是不能设置成null的.
   protected boolean callSettersOnNulls;
-  // 允许使用方法签名中的名称作为语句参数名称(项目必须使用Java8编译,并且启动时加上-parameters参数,新增于3.4.1).
+  // 允许使用方法签名中的实际参数名称作为语句参数名称(项目必须使用Java8编译,并且启动时加上-parameters参数,新增于3.4.1).
   protected boolean useActualParamName = true;
   // 当结果集返回行的所有列都是空时,MyBatis默认返回null.
   // 设置为true后,MyBatis会返回一个空实例.
@@ -727,6 +727,7 @@ public class Configuration {
     executorType = executorType == null ? defaultExecutorType : executorType;
     executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
     Executor executor;
+    // 根据参数,选择合适的Executor实现.
     if (ExecutorType.BATCH == executorType) {
       executor = new BatchExecutor(this, transaction);
     } else if (ExecutorType.REUSE == executorType) {
@@ -734,9 +735,11 @@ public class Configuration {
     } else {
       executor = new SimpleExecutor(this, transaction);
     }
+    // 如果开启了全局缓存开关(二级缓存),则创建CachingExecutor对象,并将获取到的执行器对象,通过构造参数传进去.
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
+    // 遍历所有拦截器,并调用每个拦截器的plugin方法.
     executor = (Executor) interceptorChain.pluginAll(executor);
     return executor;
   }

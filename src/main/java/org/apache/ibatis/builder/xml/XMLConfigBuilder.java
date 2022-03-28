@@ -155,6 +155,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       //  other: javaType-jdbcType-handler: 将指定的类型处理程序类和对应可处理的jdbc类型,java类型,添加到类型处理程序注册器中.
       typeHandlerElement(root.evalNode("typeHandlers"));
       // 解析mappers标签.
+      //  将mapper接口与mapper.xml绑定,并注册到Configuration中的mapperRegistry集合中.
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);

@@ -80,6 +80,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // 如果目标方法继承自Object,则直接调用目标方法.
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else {
@@ -92,8 +93,10 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
+      // 尝试通过缓存获取可调用目标方法对象,获取不到则创建一个持有method对象的DefaultMethodInvoker对象,并放到缓存中.
       return MapUtil.computeIfAbsent(methodCache, method, m -> {
         if (m.isDefault()) {
+          // 如果是被default修饰的方法.
           try {
             if (privateLookupInMethod == null) {
               return new DefaultMethodInvoker(getMethodHandleJava8(method));

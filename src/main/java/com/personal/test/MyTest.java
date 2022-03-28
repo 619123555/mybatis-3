@@ -51,13 +51,13 @@ public class MyTest {
     @Test
     public void test01() {
 
-        // 获取数据库的会话,创建出数据库连接的会话对象（事务工厂，事务对象，执行器，如果有插件的话会进行插件的解析）
+        // 获取数据库的会话对象,它持有数据库连接对象,事务工厂,事务对象,执行器(调用插件的plugin()方法,可能会返回一个执行器对象).
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Emp empByEmpno = null;
         try {
-            // 获取要调用的接口类,创建出对应的mapper的动态代理对象（mapperRegistry.knownMapper）
+            // 通过要调用的接口类,去knowMapper集合中获取对应的MapperProxyFactory对象,并通过该对象来创建动态代理对象(mapperRegistry.knownMapper).
             EmpDao mapper = sqlSession.getMapper(EmpDao.class);
-            // 调用方法开始执行
+            // 调用代理方法开始执行.
             empByEmpno = mapper.findEmpByEmpno(7369);
         } catch (Exception e) {
             e.printStackTrace();
