@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * XPath解析器,用的都是JDK的类包,封装了一下,使用起来更方便.
+ * XPath解析器(XPath是一门在XML文档中查找信息的语言),用的都是JDK的类包,封装了一下,使用起来更方便.
  *
  * @author Clinton Begin
  * @author Kazuki Shimizu
@@ -138,7 +138,7 @@ public class XPathParser {
   public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
     // 将参数赋值给当前对象的各个属性中,同时创建XPath对象.
     commonConstructor(validation, variables, entityResolver);
-    // 通过jdk中的XPath工具,将mybatis-config.xml文件的字节流对象转换为document对象.
+    // 通过jdk中的XPath工具,将xml文件的字节流对象转换为document对象.
     this.document = createDocument(new InputSource(inputStream));
   }
 
@@ -305,7 +305,7 @@ public class XPathParser {
     // 设置xml实体映射解析器,通过dtd文件来验证xml合法性.
     this.entityResolver = entityResolver;
     this.variables = variables;
-    // 通过jdk获取XPathFactory对象.
+    // 获取jdk中的XPathFactory对象(用来创建具体XPath对象).
     XPathFactory factory = XPathFactory.newInstance();
     // 由XPathFactory工厂对象创建Xpath对象.
     this.xpath = factory.newXPath();

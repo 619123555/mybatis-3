@@ -29,7 +29,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
- * 构建器的基类(建造者模式).
+ * 构建器的基类(建造者(生成器)模式).
  *
  * @author Clinton Begin
  */

@@ -37,7 +37,7 @@ public class MapperRegistry {
 
   // configuration对象,mybatis全局唯一的配置对象,其中包含了所有配置信息.
   private final Configuration config;
-  // 记录了Mapper接口与对应MapperProxyFactory之间的关系.
+  // 存储Mapper接口与对应的MapperProxyFactory(mapper代理工厂对象)之间的关系.
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
@@ -75,11 +75,12 @@ public class MapperRegistry {
       }
       boolean loadCompleted = false;
       try {
-        // 将Mapper接口的Class对象与创建的映射代理工厂类添加到knownMappers中.
+        // 将Mapper接口的Class对象与创建的mapper代理工厂类对象添加到knownMappers中.
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
+        // 创建mapper接口注解构建器.
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
         parser.parse();
         loadCompleted = true;

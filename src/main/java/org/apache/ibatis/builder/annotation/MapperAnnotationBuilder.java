@@ -91,6 +91,8 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
+ * mapper接口注解构建器.
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -102,6 +104,7 @@ public class MapperAnnotationBuilder {
       .collect(Collectors.toSet());
 
   private final Configuration configuration;
+  // 映射器构建助手对象.
   private final MapperBuilderAssistant assistant;
   private final Class<?> type;
 
@@ -113,16 +116,23 @@ public class MapperAnnotationBuilder {
   }
 
   public void parse() {
+    // interface 全局限定符.
     String resource = type.toString();
     // 检测是否已经加载过该接口.
     if (!configuration.isResourceLoaded(resource)) {
-      // 检测是否加载过对应的映射配置文件，如果未加载，则创建XMLMapperBuilder对象解析对应的映射文件
+      // 检测是否加载过对应的映射配置文件,如果未加载,则尝试去该Class同级目录下获取同名的.xml文件输入字节流,并创建XMLMapperBuilder对象来解析对应的映射文件(正常在这步是加载不到的).
       loadXmlResource();
+      // 将该Class的全局限定符添加到Configuration中的loadedResource集合中,标记该Class已被处理过(加载过对应的xml文件).
       configuration.addLoadedResource(resource);
+      // 设置当前namespace.
       assistant.setCurrentNamespace(type.getName());
+      // 解析Class中的@CacheNamespace注解.
       parseCache();
+      // 解析Class中的@CacheNamespaceRef注解.
       parseCacheRef();
+      // 遍历解析Class中定义的非default方法.
       for (Method method : type.getMethods()) {
+        // 如果是桥接方法或default方法则跳过.
         if (!canHaveStatement(method)) {
           continue;
         }
@@ -164,9 +174,9 @@ public class MapperAnnotationBuilder {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
-    // Configuration中的loadedResources集合中存储了已加载过的namespace.
+    // Configuration中的loadedResources集合中存储了已加载过的namespace为 namespace:当前Class的全局限定名 的xml文件.
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
-      // 根据Class的全局限定名的路径去找对应的xml文件.
+      // 根据Class的全局限定名的路径去找同名的.xml文件(该结果为当前Class的同级目录下的.xml文件).
       String xmlResource = type.getName().replace('.', '/') + ".xml";
       // #1347
       // 加载Mapper接口对应的xml文件输入字节流.
@@ -174,16 +184,17 @@ public class MapperAnnotationBuilder {
       if (inputStream == null) {
         // Search XML mapper that is not in the module but in the classpath.
         try {
-          // 如果根据Class的全局限定名的路径找不到对应的xml文件,则去classpath目录下获取对应的xml文件.
+          // 如果在当前Class同级目录下找不到同名的.xml文件,则去resource目录下获取对应的xml文件.
           inputStream = Resources.getResourceAsStream(type.getClassLoader(), xmlResource);
         } catch (IOException e2) {
           // ignore, resource is not required
+          // 忽略异常.
         }
       }
       if (inputStream != null) {
-        // 将Mapper.xml文件转为Document对象.
+        // 将mapper.xml文件转为Document对象.
         XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
-        // 解析xml中的标签
+        // 解析mapper.xml中的标签
         xmlParser.parse();
       }
     }

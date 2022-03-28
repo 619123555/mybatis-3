@@ -149,7 +149,7 @@ public class TypeAliasRegistry {
   }
 
   public void registerAlias(Class<?> type) {
-    // 将该类的简称 或 @Alias注解中的定义的别名,与Class添加到类型别名注册器中.
+    // 将该类的简称 或 @Alias注解中的定义的别名,与Class对象添加到类型别名注册器中.
     String alias = type.getSimpleName();
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {

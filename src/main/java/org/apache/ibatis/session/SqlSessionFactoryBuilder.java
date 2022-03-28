@@ -81,7 +81,7 @@ public class SqlSessionFactoryBuilder {
   // properties:
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
-      // 将mybatis-config.xml配置文件加载到内存中,并转换成document对象,同时初始化Configuration对象及默认属性.
+      // 将mybatis-config.xml配置文件加载到内存中(这步会将占位符进行转换),并转换成document对象,同时初始化Configuration对象及默认属性.
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
       // 根据document对象,来解析mybatis-config.xml配置文件中的属性.
       return build(parser.parse());

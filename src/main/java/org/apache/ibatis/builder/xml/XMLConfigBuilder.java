@@ -93,7 +93,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   // 上面的6个构造函数最后都会走到这个函数,传入XPathParser对象.
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
-    // 创建Configuration对象(这个过程初始化了很多属性),将Configuration对象交给父类(BaseBuilder)的构造方法.
+    // 创建Configuration对象(这个过程初始化了很多属性),并将Configuration对象交给父类(BaseBuilder)的构造方法.
     super(new Configuration());
     // 错误上下文设置成SQL Mapper Configuration(xml文件配置).
     ErrorContext.instance().resource("SQL Mapper Configuration");
@@ -133,7 +133,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       // 根据用户在settings中指定的logImpl属性值,来设置指定的日志实现类.
       loadCustomLogImpl(settings);
       // 解析typeAliases标签.
-      //  package: 将包名下的所有普通类(排除内部类,接口,抽象类),由@Alias注解中定义的value属性或Class类名的简称作为别名,添加到类型别名注册器中.
+      //  package: 将包名下的所有普通类(排除内部类,接口,抽象类),及@Alias注解中定义的value属性或Class类名的小写名称作为别名,添加到类型别名注册器中.
       //  other: alias-type: 将指定的别名与类型,添加到类型别名注册器中,如果alias不存在,则由@Alias注解中定义的value属性或Class类名的简称作为别名.
       typeAliasesElement(root.evalNode("typeAliases"));
       // 解析plugins标签,将每个plugin标签中定义的拦截器实例化,并添加到Configuration中的拦截器链对象中.
@@ -144,7 +144,11 @@ public class XMLConfigBuilder extends BaseBuilder {
       // 将settings标签中设置的各个属性,设置到Configuration对象中.
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
+      // 解析environment标签.
+      //  创建transactionFactory,DataSourceFactory,DataSource对象,并封装为Environment对象赋值给Configuration中的environment对象.
       environmentsElement(root.evalNode("environments"));
+      // 解析databaseIdProvider标签.
+      //  通过dataSource对象连接中的产品名称,获取用户设置的几个数据库提供商名称,并将该名称赋值给Configuration中的databaseId对象.
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
       // 解析typeHandlers标签.
       //  package: 将包名下实现了TypeHandler接口的所有普通类(排除内部类,接口,抽象类,最好使用@MappedJdbcTypes和@MappedTypes注解),添加到类型处理程序注册器中.
@@ -200,7 +204,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       // 遍历typeAliases标签的所有子标签.
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
-          // 如果子标签为package,则扫描该标签中的name属性指定的包名下的所有class文件,将所有普通类(排除内部类,接口,抽象类)添加到类型别名注册器中.
+          // 如果子标签为package,则扫描该标签中的name属性指定的包名下的所有class文件,将所有普通类(排除内部类,接口,抽象类)及别名(小写类名或@Alias注解value属性中定义的值),添加到类型别名注册器中.
           String typeAliasPackage = child.getStringAttribute("name");
           configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
         } else {
@@ -210,7 +214,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           try {
             Class<?> clazz = Resources.classForName(type);
             if (alias == null) {
-              // 如果没有指定别名,则使用该Class的简称作为别名,与该Class对象一起添加到类型别名注册器中.
+              // 如果没有指定别名,则使用该Class的简称或@Alias注解中的value属性作为别名,与该Class对象一起添加到类型别名注册器中.
               typeAliasRegistry.registerAlias(clazz);
             } else {
               // 将别名与该Class对象添加到类型别名注册器中.
@@ -335,15 +339,22 @@ public class XMLConfigBuilder extends BaseBuilder {
       if (environment == null) {
         environment = context.getStringAttribute("default");
       }
+      // 遍历查找id与XMLConfigBuilder.environment一致的environment标签.
       for (XNode child : context.getChildren()) {
         String id = child.getStringAttribute("id");
+        // 判断是否为指定的environmentId.
         if (isSpecifiedEnvironment(id)) {
+          // 解析当前environment标签中的transactionManager标签,并创建事务工厂对象.
           TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
+          // 解析当前environment标签中的dataSource标签,并创建数据源工厂和数据源对象.
           DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
+          // 获取数据源对象.
           DataSource dataSource = dsFactory.getDataSource();
+          // 创建environment构建器对象,并对属性进行赋值.
           Environment.Builder environmentBuilder = new Environment.Builder(id)
               .transactionFactory(txFactory)
               .dataSource(dataSource);
+          // 通过environmentBuilder构建Environment对象,并赋值给Configuration中的environment属性.
           configuration.setEnvironment(environmentBuilder.build());
           break;
         }
@@ -356,6 +367,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (context != null) {
       String type = context.getStringAttribute("type");
       // awful patch to keep backward compatibility
+      // 与老版本兼容
       if ("VENDOR".equals(type)) {
         type = "DB_VENDOR";
       }
@@ -363,6 +375,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       databaseIdProvider = (DatabaseIdProvider) resolveClass(type).getDeclaredConstructor().newInstance();
       databaseIdProvider.setProperties(properties);
     }
+    // 根据数据源对象获取当前DataSource对象标识.
     Environment environment = configuration.getEnvironment();
     if (environment != null && databaseIdProvider != null) {
       String databaseId = databaseIdProvider.getDatabaseId(environment.getDataSource());
@@ -372,9 +385,13 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private TransactionFactory transactionManagerElement(XNode context) throws Exception {
     if (context != null) {
+      // 获取用户定义的事务工厂类型(JDBC).
       String type = context.getStringAttribute("type");
+      // 获取transactionManager子标签中定义的property标签.
       Properties props = context.getChildrenAsProperties();
+      // 根据指定的类型(Class对象的别名或Class的全局限定符)去创建事务工厂对象.
       TransactionFactory factory = (TransactionFactory) resolveClass(type).getDeclaredConstructor().newInstance();
+      // 对该事务工厂设置自定义属性.
       factory.setProperties(props);
       return factory;
     }
@@ -383,9 +400,13 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private DataSourceFactory dataSourceElement(XNode context) throws Exception {
     if (context != null) {
+      // 获取用户定义的数据源工厂类型.
       String type = context.getStringAttribute("type");
+      // 获取dataSource子标签中定义的property标签.
       Properties props = context.getChildrenAsProperties();
+      // 根据用户指定的数据源工厂类型(Class对象的别名或Class的全局限定符)去创建数据源工厂对象,并创建一个空的数据源对象.
       DataSourceFactory factory = (DataSourceFactory) resolveClass(type).getDeclaredConstructor().newInstance();
+      // 对dataSource对象设置用户定义的属性.
       factory.setProperties(props);
       return factory;
     }

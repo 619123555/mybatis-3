@@ -50,7 +50,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
- * 映射构建器助手,继承BaseBuilder(建造者模式).
+ * 映射器构建助手,继承BaseBuilder(建造者(生成器)模式).
  *
  * @author Clinton Begin
  */
@@ -64,6 +64,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
   public MapperBuilderAssistant(Configuration configuration, String resource) {
     super(configuration);
+    // 设置异常上下文.
     ErrorContext.instance().resource(resource);
     this.resource = resource;
   }

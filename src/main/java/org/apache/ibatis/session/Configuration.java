@@ -100,7 +100,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  */
 public class Configuration {
 
-  // 当前环境对象,该对象中包含了环境名称,事务工厂对象,数据源对象.
+  // 当前环境对象,该对象中包含了环境名称,事务工厂对象,数据源工厂对象.
   protected Environment environment;
 
   // 是否允许在嵌套语句中使用分页(RowBounds),如果允许则设置为false.
@@ -209,7 +209,9 @@ public class Configuration {
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
-  // 存储已加载Mapper.xml文件中定义的namespace(namespace:mapper接口全局限定名).
+  // 存储
+  //  已加载过的namespace为 namespace:Class的全局限定名 的mapper.xml文件.
+  //  interface 全局限定符.
   protected final Set<String> loadedResources = new HashSet<>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
