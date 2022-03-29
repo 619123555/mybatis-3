@@ -56,8 +56,9 @@ import org.apache.ibatis.type.TypeHandler;
  */
 public class MapperBuilderAssistant extends BaseBuilder {
 
-  // 每个助手都有1个namespace,resource,cache.
+  // 存储mapper.xml -> mapper标签中的namespace属性(对应Class的全局限定符).
   private String currentNamespace;
+  // 存储mapper.xml文件路径.
   private final String resource;
   private Cache currentCache;
   private boolean unresolvedCacheRef; // issue #676
@@ -285,6 +286,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       throw new IncompleteElementException("Cache-ref not yet resolved");
     }
 
+    // 生成当前sql语句的id(mapper接口的全局限定符.sql标签id)
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 

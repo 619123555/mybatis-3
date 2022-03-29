@@ -72,7 +72,7 @@
               2、在resource资源目录下，创建跟dao层一样的同级目录即可，将配置文件放到指定的目录
     -->
     <mappers>
-<!--        <mapper resource="mappers/EmpDao.xml" />-->
+        <mapper resource="mappers/EmpDao.xml" />
 <!--        <mapper resource="UserDao.xml"/>-->
 <!--        <mapper class="com.mashibing.dao.UserDaoAnnotation"></mapper>-->
 <!--        <mapper class="com.personal.dao.EmpDao"></mapper>-->

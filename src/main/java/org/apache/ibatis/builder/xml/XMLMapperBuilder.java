@@ -58,7 +58,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   private final XPathParser parser;
   // xml构建助手.
   private final MapperBuilderAssistant builderAssistant;
-  // 用来存放用户定义的可重用的sql片段(sql标签).
+  // 用来存放用户在mapper中定义的可重用的sql片段(sql标签).
   private final Map<String, XNode> sqlFragments;
   private final String resource;
 
@@ -93,7 +93,9 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
-    // 校验是否已解析过该mapper.xml文件.
+    // 判断是否已成功解析过该mapper.xml文件.
+    //  用户在mapper-configuration -> mappers标签中的resource属性指定的mapper.xml文件路径(mappers/empDao.xml).
+    //  用户在mapper-configuration -> mappers标签中的package标签指定的目录中的mapper.xml文件路径(Class的全局限定符.xml).
     if (!configuration.isResourceLoaded(resource)) {
       // 解析mapper标签.
       configurationElement(parser.evalNode("/mapper"));
@@ -104,6 +106,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       bindMapperForNamespace();
     }
 
+    // 遍历处理未完成处理的解析工作.
     parsePendingResultMaps();
     parsePendingCacheRefs();
     parsePendingStatements();
@@ -115,7 +118,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void configurationElement(XNode context) {
     try {
-      // 获取mapper标签中的namespace属性.
+      // 获取mapper.xml -> mapper标签中的namespace属性(Class的全局限定符).
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.isEmpty()) {
         throw new BuilderException("Mapper's namespace cannot be empty");
@@ -130,7 +133,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
       // 解析resultMap标签(非select标签中的resultMap).
       resultMapElements(context.evalNodes("/mapper/resultMap"));
-      // 解析sql标签.
+      // 解析sql标签(可重用sql代码段).
       sqlElement(context.evalNodes("/mapper/sql"));
       // 解析select,update,insert,delete等SQL节点.
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
@@ -141,15 +144,19 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void buildStatementFromContext(List<XNode> list) {
     if (configuration.getDatabaseId() != null) {
+      // 如果sql标签指定了数据库id,则提前走一遍解析sql语句逻辑.
       buildStatementFromContext(list, configuration.getDatabaseId());
     }
+    // 开始走正常处理sql语句流程.
     buildStatementFromContext(list, null);
   }
 
   private void buildStatementFromContext(List<XNode> list, String requiredDatabaseId) {
     for (XNode context : list) {
+      // 创建sql语句构建器对象.
       final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, context, requiredDatabaseId);
       try {
+        // 解析sql语句标签(<select|update|insert|delete>).
         statementParser.parseStatementNode();
       } catch (IncompleteElementException e) {
         configuration.addIncompleteStatement(statementParser);
@@ -413,7 +420,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   // 解析sql标签(用户定义的可重用的SQL代码段).
   // <sql id="userColumns"> id,username,password </sql>
   private void sqlElement(List<XNode> list, String requiredDatabaseId) {
-    // 遍历sql标签.
+    // 遍历挨个儿处理sql标签.
     for (XNode context : list) {
       // 获取databaseId属性.
       String databaseId = context.getStringAttribute("databaseId");
@@ -511,14 +518,15 @@ public class XMLMapperBuilder extends BaseBuilder {
       } catch (ClassNotFoundException e) {
         // ignore, bound type is not required
       }
-      // 校验是否已经加载了boundType接口.
+      // 校验是否已经绑定了Mapper接口与mapper对应的MapperProxyFactory对象关系(knowMapper).
       if (boundType != null && !configuration.hasMapper(boundType)) {
         // Spring may not know the real resource name so we set a flag
         // to prevent loading again this resource from the mapper interface
         // look at MapperAnnotationBuilder#loadXmlResource
         // 追加namespace前缀,并添加到loadedResources集合中保存.
         configuration.addLoadedResource("namespace:" + namespace);
-        // 解析mapper.xml文件,并添加到映射器中.
+        // 加载mapper.xml中namespace指定的mapper接口类.
+        // 创建Mapper接口与对应的MapperProxyFactory对象,并添加到knowMapper中.
         configuration.addMapper(boundType);
       }
     }

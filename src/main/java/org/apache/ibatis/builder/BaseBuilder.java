@@ -118,7 +118,7 @@ public abstract class BaseBuilder {
   }
 
 
-  // 根据别名获取Class对象,获取不到则使用类加载器去加载该class文件.
+  // 根据别名获取Class对象,获取不到则使用类加载器,根据全局限定符去加载该Class对象.
   protected <T> Class<? extends T> resolveClass(String alias) {
     if (alias == null) {
       return null;

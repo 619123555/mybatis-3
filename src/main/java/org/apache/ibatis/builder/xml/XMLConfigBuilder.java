@@ -445,26 +445,33 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
+          // 如果标签名为package.
+          //  直接获取指定包名下的接口类,并将每个接口Class的全局限定符转为路径,从当前Class同级目录中获取同名的.xml文件.
+          //  如果同级目录中获取不到同名的.xml文件,则去classpath目录下的同级目录中获取.xml文件.
+          // 将所有mapper接口与创建的代理工厂对象添加到knowMapper中(key为Class,value为MapperProxyFactory).
           String mapperPackage = child.getStringAttribute("name");
-          // 获取指定包名下的接口类,并添加到映射关系注册器中.
           configuration.addMappers(mapperPackage);
         } else {
+          // 如果标签名为mapper则单独处理.
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
           if (resource != null && url == null && mapperClass == null) {
+            // 解析resource属性指定的mapper.xml文件.
             ErrorContext.instance().resource(resource);
             try(InputStream inputStream = Resources.getResourceAsStream(resource)) {
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
               mapperParser.parse();
             }
           } else if (resource == null && url != null && mapperClass == null) {
+            // 解析url属性指定的mapper.xml文件.
             ErrorContext.instance().resource(url);
             try(InputStream inputStream = Resources.getUrlAsStream(url)){
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
               mapperParser.parse();
             }
           } else if (resource == null && url == null && mapperClass != null) {
+            // 解析mapperClass属性指定的mapper接口类.
             Class<?> mapperInterface = Resources.classForName(mapperClass);
             configuration.addMapper(mapperInterface);
           } else {

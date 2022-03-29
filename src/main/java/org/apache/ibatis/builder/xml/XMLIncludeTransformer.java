@@ -45,8 +45,11 @@ public class XMLIncludeTransformer {
 
   public void applyIncludes(Node source) {
     Properties variablesContext = new Properties();
+    // 获取mybatis-config.xml文件中properties节点下定义的变量集合.
     Properties configurationVariables = configuration.getVariables();
+    // 将configuration中的variables集合中的所有属性添加到variablesContext中.
     Optional.ofNullable(configurationVariables).ifPresent(variablesContext::putAll);
+    // 解析include标签.
     applyIncludes(source, variablesContext, false);
   }
 
@@ -60,16 +63,22 @@ public class XMLIncludeTransformer {
    */
   private void applyIncludes(Node source, final Properties variablesContext, boolean included) {
     if ("include".equals(source.getNodeName())) {
+      // 查找refid属性指向的sql标签,返回的是其克隆的Node对象.
       Node toInclude = findSqlFragment(getStringAttribute(source, "refid"), variablesContext);
+      // 解析include节点下的property节点,将得到的键值对添加到variablesContext中,并形成新的Properties对象返回,用于替换占位符.
       Properties toIncludeContext = getVariablesContext(source, variablesContext);
+      // 递归处理Include节点,在sql节点中可能会使用include引用了其他SQL片段.
       applyIncludes(toInclude, toIncludeContext, true);
       if (toInclude.getOwnerDocument() != source.getOwnerDocument()) {
         toInclude = source.getOwnerDocument().importNode(toInclude, true);
       }
+      // 将include节点替换成sql节点.
       source.getParentNode().replaceChild(toInclude, source);
+      // 将sql节点的子节点添加到sql节点前面.
       while (toInclude.hasChildNodes()) {
         toInclude.getParentNode().insertBefore(toInclude.getFirstChild(), toInclude);
       }
+      // 删除sql节点.
       toInclude.getParentNode().removeChild(toInclude);
     } else if (source.getNodeType() == Node.ELEMENT_NODE) {
       if (included && !variablesContext.isEmpty()) {
@@ -80,6 +89,7 @@ public class XMLIncludeTransformer {
           attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
         }
       }
+      // 遍历当前SQL语句的子节点.
       NodeList children = source.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
         applyIncludes(children.item(i), variablesContext, included);
@@ -87,6 +97,7 @@ public class XMLIncludeTransformer {
     } else if (included && (source.getNodeType() == Node.TEXT_NODE || source.getNodeType() == Node.CDATA_SECTION_NODE)
         && !variablesContext.isEmpty()) {
       // replace variables in text node
+      // 使用之前解析得到的properties对象替换对应的占位符.
       source.setNodeValue(PropertyParser.parse(source.getNodeValue(), variablesContext));
     }
   }

@@ -210,14 +210,15 @@ public class Configuration {
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
   // 存储
-  //  已加载过的namespace为 namespace:Class的全局限定名 的mapper.xml文件.
-  //  interface 全局限定符.
+  //  在mybatis-config.xml中mappers标签中定义的resource类型的mapper标签的value(mappers/empDao.xml).
+  //  已加载过的namespace为 interface Class全局限定符 的mapper接口对应的xml文件.
+  //  正在加载中的 namespace:Class全局限定符 的mapper接口对应的xml文件.
   protected final Set<String> loadedResources = new HashSet<>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
   // 不完整的SQL语句.
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
-  // 存储解析完缓存引用的namespace等信息.
+  // 存储未完全解析的mapper.
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
   protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();

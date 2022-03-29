@@ -75,12 +75,12 @@ public class MapperRegistry {
       }
       boolean loadCompleted = false;
       try {
-        // 将Mapper接口的Class对象与创建的mapper代理工厂类对象添加到knownMappers中.
+        // 将Mapper接口的Class对象与创建的mapper代理工厂对象添加到knownMappers中.
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
-        // 创建mapper接口注解构建器.
+        // 创建mapper接口注解构建器对象,并获取对应的mapper.xml路径.
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
         parser.parse();
         loadCompleted = true;
@@ -112,11 +112,12 @@ public class MapperRegistry {
    * @since 3.2.2
    */
   public void addMappers(String packageName, Class<?> superType) {
-    // 查找指定包名下的所有接口类,并添加到映射关系注册器中.
+    // 查找指定包名下的所有接口类,将Class与代理工厂对象绑定关系并添加到knowMapper中.
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
     Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getClasses();
     for (Class<?> mapperClass : mapperSet) {
+      // 将Class与代理工厂对象绑定关系并添加到knowMapper中.
       // 添加到映射关系注册器中.
       addMapper(mapperClass);
     }
