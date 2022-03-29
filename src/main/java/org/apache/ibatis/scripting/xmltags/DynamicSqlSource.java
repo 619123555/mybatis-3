@@ -21,6 +21,8 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 保存动态SQL语句.
+ *
  * @author Clinton Begin
  */
 public class DynamicSqlSource implements SqlSource {
@@ -33,13 +35,19 @@ public class DynamicSqlSource implements SqlSource {
     this.rootSqlNode = rootSqlNode;
   }
 
+  // 得到绑定的sql.
   @Override
   public BoundSql getBoundSql(Object parameterObject) {
+    // 创建DynamicContext对象,parameterObject是用户传入的实参.
     DynamicContext context = new DynamicContext(configuration, parameterObject);
+    // 这里SqlNode.apply只是将${}这种参数替换掉,并没有替换#{}这种参数.
     rootSqlNode.apply(context);
+    // 创建SqlSourceBuilder,解析参数属性,并将SQL语句中的 #{} 占位符替换成 ? 占位符.
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
+    // SqlSourceBuilder.parse,注意这里返回的是StaticSqlSource,解析完了就把那些参数都替换成 ? 了，也就是最基本的jdbc的sql写法.
     SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
+    // 创建BoundSql对象,并将DynamicContext.bindings中的参数信息复制到其additionalParameters集合中保存.
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
     context.getBindings().forEach(boundSql::setAdditionalParameter);
     return boundSql;

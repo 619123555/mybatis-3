@@ -94,8 +94,8 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   public void parse() {
     // 判断是否已成功解析过该mapper.xml文件.
-    //  用户在mapper-configuration -> mappers标签中的resource属性指定的mapper.xml文件路径(mappers/empDao.xml).
-    //  用户在mapper-configuration -> mappers标签中的package标签指定的目录中的mapper.xml文件路径(Class的全局限定符.xml).
+    //  用户在mapper-config.xml -> mappers标签中的mapper标签中的resource属性指定的mapper.xml文件路径(mappers/empDao.xml).
+    //  用户在mapper-config.xml -> mappers标签中的package标签指定的目录中的mapper.xml文件路径(Class的全局限定符.xml).
     if (!configuration.isResourceLoaded(resource)) {
       // 解析mapper标签.
       configurationElement(parser.evalNode("/mapper"));

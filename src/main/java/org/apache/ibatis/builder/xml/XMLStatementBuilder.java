@@ -34,7 +34,7 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * sql语句对象构建器.
+ * sql语句构建器.
  *
  * @author Clinton Begin
  */
@@ -89,8 +89,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     // 通过别名或Class的全局限定符获取参数类型的Class对象.
     Class<?> parameterTypeClass = resolveClass(parameterType);
 
-    // 脚本语言,mybatis3.2的新功能.
+    // 获取用户指定的语言解析驱动属性,mybatis3.2的新功能.
     String lang = context.getStringAttribute("lang");
+    // 获取语言解析驱动对象(默认 XMLLanguageDriver).
     LanguageDriver langDriver = getLanguageDriver(lang);
 
     // Parse selectKey after includes and remove them.
@@ -112,7 +113,7 @@ public class XMLStatementBuilder extends BaseBuilder {
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
 
-    // 解析成SqlSource对象,一般是DynamicSqlSource(${}方式),StaticSqlSource(#{}方式).
+    // 解析成SqlSource对象,一般是DynamicSqlSource(存在${}占位符或使用了动态sql相关标签),StaticSqlSource(存在#{}占位符).
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     // 获取用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认STATEMENT.
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));

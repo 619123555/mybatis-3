@@ -34,11 +34,15 @@ public class XNode {
 
   private final Node node;
   private final String name;
+  // Node节点内容.
   private final String body;
+  // 节点属性集合.
   private final Properties attributes;
+  // mybatis-configproperties>节点下定义的键值对.
   private final Properties variables;
   private final XPathParser xpathParser;
 
+  // 在构造时就把一些信息(属性,body)全部解析好,以便我们直接通过getter函数取得.
   public XNode(XPathParser xpathParser, Node node, Properties variables) {
     this.xpathParser = xpathParser;
     this.node = node;
@@ -329,10 +333,12 @@ public class XNode {
 
   private Properties parseAttributes(Node n) {
     Properties attributes = new Properties();
+    // 获取节点的属性集合.
     NamedNodeMap attributeNodes = n.getAttributes();
     if (attributeNodes != null) {
       for (int i = 0; i < attributeNodes.getLength(); i++) {
         Node attribute = attributeNodes.item(i);
+        // 使用PropertyParser处理每个属性中的占位符.
         String value = PropertyParser.parse(attribute.getNodeValue(), variables);
         attributes.put(attribute.getNodeName(), value);
       }
@@ -341,8 +347,11 @@ public class XNode {
   }
 
   private String parseBody(Node node) {
+    // 取不到body,循环取子节点的body,只要取到第一个,立即返回.
     String data = getBodyData(node);
+    // 当前节点不是文本节点.
     if (data == null) {
+      // 处理子节点.
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
         Node child = children.item(i);
@@ -356,9 +365,11 @@ public class XNode {
   }
 
   private String getBodyData(Node child) {
+    // 只处理文本内容.
     if (child.getNodeType() == Node.CDATA_SECTION_NODE
         || child.getNodeType() == Node.TEXT_NODE) {
       String data = ((CharacterData) child).getData();
+      // 使用PropertyParser处理文本节点中的占位符.
       data = PropertyParser.parse(data, variables);
       return data;
     }

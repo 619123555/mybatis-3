@@ -35,6 +35,7 @@ import org.w3c.dom.NodeList;
 public class XMLScriptBuilder extends BaseBuilder {
 
   private final XNode context;
+  // 标记是否为动态sql.
   private boolean isDynamic;
   private final Class<?> parameterType;
   private final Map<String, NodeHandler> nodeHandlerMap = new HashMap<>();
@@ -64,8 +65,10 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
   public SqlSource parseScriptNode() {
+    // 判断当前的节点是否属于动态sql(包含${}占位符 或 动态sql相关标签的).
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
     SqlSource sqlSource;
+    // 根据是否为动态sql,来选择对应的SqlSource对象.
     if (isDynamic) {
       sqlSource = new DynamicSqlSource(configuration, rootSqlNode);
     } else {
@@ -75,26 +78,36 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
   protected MixedSqlNode parseDynamicTags(XNode node) {
+    // 用于记录生成的SqlNode集合.
     List<SqlNode> contents = new ArrayList<>();
+    // 获取SelectKey的所有子节点.
     NodeList children = node.getNode().getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
+      // 创建XNode,该过程会将能解析掉的${}占位符都解析掉.
       XNode child = node.newXNode(children.item(i));
+      // 对文本节点的处理.
       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
         String data = child.getStringBody("");
         TextSqlNode textSqlNode = new TextSqlNode(data);
+        // 解析SQL语句,如果含有未解析的${}占位符,则为动态SQL.
         if (textSqlNode.isDynamic()) {
           contents.add(textSqlNode);
+          // 标记为动态SQL语句.
           isDynamic = true;
         } else {
           contents.add(new StaticTextSqlNode(data));
         }
       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628
+        // 如果子节点是一个标签,那么一定是动态SQL,并且根据不同的动态标签生成不同的NodeHandler.
         String nodeName = child.getNode().getNodeName();
         NodeHandler handler = nodeHandlerMap.get(nodeName);
+        // 如果handler为null,则抛出异常.
         if (handler == null) {
           throw new BuilderException("Unknown element <" + nodeName + "> in SQL statement.");
         }
+        // 处理动态SQL,并将解析得到的SqlNode对象放入contents集合中保存.
         handler.handleNode(child, contents);
+        // 标记为动态SQL语句.
         isDynamic = true;
       }
     }
