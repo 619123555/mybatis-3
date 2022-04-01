@@ -198,7 +198,7 @@ public class Configuration {
   // 脚本语言注册器.
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
-  // 通过类的全局限定符+方法名,找到存储了对应sql语句的MappedStatement对象.
+  // 通过 类的全局限定符.方法名 格式字符串,找到存储了对应sql语句的MappedStatement对象.
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
@@ -269,7 +269,7 @@ public class Configuration {
     typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
     typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
 
-    //
+    // 设置默认的XML语言驱动(解析xml中的sql标签).
     languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
     languageRegistry.register(RawLanguageDriver.class);
   }

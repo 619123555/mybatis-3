@@ -28,21 +28,26 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
+ * 解析XML标签.
+ *  尝试将文本内容中的${}占位符替换为在Configuration -> variables集合中指定属性的value.
+ *  如果替换失败则保持原样.
  * @author Clinton Begin
  */
 public class XNode {
 
   private final Node node;
   private final String name;
-  // Node节点内容.
+  // Node文本内容.
   private final String body;
   // 节点属性集合.
   private final Properties attributes;
-  // mybatis-configproperties>节点下定义的键值对.
+  // Configuration -> variables集合.
   private final Properties variables;
   private final XPathParser xpathParser;
 
-  // 在构造时就把一些信息(属性,body)全部解析好,以便我们直接通过getter函数取得.
+  // 在构造时就把一些信息解析好,以便后续直接通过getter方法获取.
+  //  尝试将属性,body中的${}占位符,替换为Configuration -> variables集合中指定属性的value.
+  //  如果替换失败则保持原样.
   public XNode(XPathParser xpathParser, Node node, Properties variables) {
     this.xpathParser = xpathParser;
     this.node = node;
@@ -117,6 +122,7 @@ public class XNode {
     return xpathParser.evalNodes(node, expression);
   }
 
+  // 解析指定标签,并将${}占位符替换为在Configuration -> variables集合中指定属性的value.
   public XNode evalNode(String expression) {
     return xpathParser.evalNode(node, expression);
   }
@@ -338,7 +344,8 @@ public class XNode {
     if (attributeNodes != null) {
       for (int i = 0; i < attributeNodes.getLength(); i++) {
         Node attribute = attributeNodes.item(i);
-        // 使用PropertyParser处理每个属性中的占位符.
+        // 尝试使用PropertyParser.parse(),将使用了${}占位符的属性值,替换为在Configuration -> variables 集合中指定属性的value.
+        // 如果替换失败则保持原样.
         String value = PropertyParser.parse(attribute.getNodeValue(), variables);
         attributes.put(attribute.getNodeName(), value);
       }
@@ -369,7 +376,8 @@ public class XNode {
     if (child.getNodeType() == Node.CDATA_SECTION_NODE
         || child.getNodeType() == Node.TEXT_NODE) {
       String data = ((CharacterData) child).getData();
-      // 使用PropertyParser处理文本节点中的占位符.
+      // 尝试使用PropertyParser.parse()将文本字符串中的${}占位符替换为Configuration -> variables集合中对应的value.
+      // 如果替换失败则保持原样.
       data = PropertyParser.parse(data, variables);
       return data;
     }

@@ -59,9 +59,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");
 
-    // 判断sql标签是否指定了数据库id.
+    // 判断sql标签是否指定了数据库id,是否已生成过当前sql标签id对应的MapperStatement对象.
     if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
-      // 没有指定数据库id则直接返回.
+      // 没有指定数据库id 或 已生成过当前sql标签id对应的MapperStatement对象,则直接返回.
       return;
     }
 
@@ -100,7 +100,7 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
     KeyGenerator keyGenerator;
-    // 获取selectKey节点对应的SelectKeyGenerator的id.
+    // 获取selectKey节点对应的SelectKeyGenerator的id(mapper接口Class的全局限定符.方法名!selectKey).
     String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
     // SQL节点下存在SelectKey节点.
@@ -113,7 +113,7 @@ public class XMLStatementBuilder extends BaseBuilder {
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
 
-    // 解析成SqlSource对象,一般是DynamicSqlSource(存在${}占位符或使用了动态sql相关标签),StaticSqlSource(存在#{}占位符).
+    // 将sql语句标签的内容解析成SqlSource对象,一般是DynamicSqlSource(存在${}占位符或使用了动态sql相关标签),StaticSqlSource(存在#{}占位符).
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     // 获取用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认STATEMENT.
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
@@ -222,7 +222,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     if (databaseId != null) {
       return false;
     }
+    // 生成当前sql语句的id(mapper接口全局限定符.sql语句id).
     id = builderAssistant.applyCurrentNamespace(id, false);
+    // 如果未找到当前sql语句对应的MapperStatement对象,则返回true.
     if (!this.configuration.hasStatement(id, false)) {
       return true;
     }

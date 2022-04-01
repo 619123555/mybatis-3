@@ -21,6 +21,10 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 
 /**
+ * 不使用主键生成器时使用该对象.
+ * MappedStatement有一个keyGenerator属性,默认的就用NoKeyGenerator.
+ *
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

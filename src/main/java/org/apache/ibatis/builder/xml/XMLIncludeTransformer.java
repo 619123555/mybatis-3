@@ -45,7 +45,7 @@ public class XMLIncludeTransformer {
 
   public void applyIncludes(Node source) {
     Properties variablesContext = new Properties();
-    // 获取mybatis-config.xml文件中properties节点下定义的变量集合.
+    // 获取Configuration中的全局变量集合.
     Properties configurationVariables = configuration.getVariables();
     // 将configuration中的variables集合中的所有属性添加到variablesContext中.
     Optional.ofNullable(configurationVariables).ifPresent(variablesContext::putAll);
@@ -89,7 +89,7 @@ public class XMLIncludeTransformer {
           attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
         }
       }
-      // 遍历当前SQL语句的子节点.
+      // 遍历当前SQL语句的子节点,并递归处理include标签.
       NodeList children = source.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
         applyIncludes(children.item(i), variablesContext, included);

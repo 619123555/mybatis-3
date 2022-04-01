@@ -135,7 +135,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       resultMapElements(context.evalNodes("/mapper/resultMap"));
       // 解析sql标签(可重用sql代码段).
       sqlElement(context.evalNodes("/mapper/sql"));
-      // 解析select,update,insert,delete等SQL节点.
+      // 解析select,update,insert,delete等标签.
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -420,7 +420,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   // 解析sql标签(用户定义的可重用的SQL代码段).
   // <sql id="userColumns"> id,username,password </sql>
   private void sqlElement(List<XNode> list, String requiredDatabaseId) {
-    // 遍历挨个儿处理sql标签.
+    // 遍历处理sql标签.
     for (XNode context : list) {
       // 获取databaseId属性.
       String databaseId = context.getStringAttribute("databaseId");

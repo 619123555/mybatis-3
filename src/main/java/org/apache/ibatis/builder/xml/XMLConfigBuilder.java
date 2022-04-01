@@ -452,7 +452,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
         } else {
-          // 如果标签名为mapper则单独处理.
+          // 如果标签名为mapper则单独处理,mapper标签可以指定mapper.xml,也可以指定mapper接口的class文件全局限定符.
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
