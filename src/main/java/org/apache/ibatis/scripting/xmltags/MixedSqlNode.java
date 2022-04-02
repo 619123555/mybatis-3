@@ -32,7 +32,7 @@ public class MixedSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
-    // 依次调用list里每个元素的apply.
+    // 依次调用list里每个元素的apply()方法.
     contents.forEach(node -> node.apply(context));
     return true;
   }

@@ -26,7 +26,7 @@ import org.apache.ibatis.scripting.xmltags.SqlNode;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * 保存原始sql语句,保存了StaticSqlSource对象.
+ * 处理StaticSqlSource对象,它速度很快,因为#{}占位符对应的属性在启动时就解析好了.
  *
  * Static SqlSource. It is faster than {@link DynamicSqlSource} because mappings are
  * calculated during startup.
@@ -45,10 +45,10 @@ public class RawSqlSource implements SqlSource {
   }
 
   public RawSqlSource(Configuration configuration, String sql, Class<?> parameterType) {
-    // 通过SqlSourceBuilder完成占位符的解析和替换操作.
+    // 通过SqlSourceBuilder完成静态sql#{}占位符的解析和替换操作.
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
     Class<?> clazz = parameterType == null ? Object.class : parameterType;
-    // sqlSourceParser.parse方法返回的是StaticSqlSource
+    // sqlSourceParser.parse()方法返回的是StaticSqlSource.
     sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<>());
   }
 

@@ -116,7 +116,7 @@ public class MapperAnnotationBuilder {
   }
 
   public void parse() {
-    // interface 全局限定符.
+    // interface 全局限定符,格式的字符串.
     String resource = type.toString();
     // 检测是否已经加载过该接口.
     if (!configuration.isResourceLoaded(resource)) {
@@ -125,7 +125,7 @@ public class MapperAnnotationBuilder {
       loadXmlResource();
       // 将该Class的全局限定符添加到Configuration中的loadedResource集合中,标记该Class已被处理过(尝试加载过对应的xml文件).
       configuration.addLoadedResource(resource);
-      // 设置当前namespace.
+      // 设置当前Class对应的namespace.
       assistant.setCurrentNamespace(type.getName());
       // 解析Class中的@CacheNamespace注解.
       parseCache();
@@ -176,7 +176,7 @@ public class MapperAnnotationBuilder {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
-    // 判断该Class对应的xml文件是否正在加载中.
+    // 判断该Class对应的xml文件是否已加载过.
     if (!configuration.isResourceLoaded("namespace:" + type.getName())) {
       // 根据Class的全局限定名的路径去当前包下找同名的.xml文件(该结果为当前Class的同级目录下同名的.xml文件).
       String xmlResource = type.getName().replace('.', '/') + ".xml";
@@ -317,7 +317,7 @@ public class MapperAnnotationBuilder {
   void parseStatement(Method method) {
     // 获取方法参数类型.
     final Class<?> parameterTypeClass = getParameterType(method);
-    // 获取语言驱动对象.
+    // 获取语言驱动对象(XMLLanguageDriver).
     final LanguageDriver languageDriver = getLanguageDriver(method);
 
     getAnnotationWrapper(method, true, statementAnnotationTypes).ifPresent(statementAnnotation -> {

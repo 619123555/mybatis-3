@@ -94,15 +94,15 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   public void parse() {
     // 判断是否已成功解析过该mapper.xml文件.
-    //  用户在mapper-config.xml -> mappers标签中的mapper标签中的resource属性指定的mapper.xml文件路径(mappers/empDao.xml).
-    //  用户在mapper-config.xml -> mappers标签中的package标签指定的目录中的mapper.xml文件路径(Class的全局限定符.xml).
+    //  用户在mapper-config.xml -> mappers标签中的mapper标签中的resource属性指定的mapper.xml文件路径时为 mappers/empDao.xml.
+    //  用户在mapper-config.xml -> mappers标签中的package标签指定的目录中的mapper.xml文件路径时为 Class的全局限定符.xml.
     if (!configuration.isResourceLoaded(resource)) {
       // 解析mapper标签.
       configurationElement(parser.evalNode("/mapper"));
 
       // 将namespace添加到configuration中的loadedResource集合中,表示已加载过.
       configuration.addLoadedResource(resource);
-      // 将namespace与,Mapper接口绑定(该操作是递归).
+      // 将mapper.xml通过namespace与Mapper接口绑定(该操作是递归).
       bindMapperForNamespace();
     }
 
@@ -513,7 +513,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     if (namespace != null) {
       Class<?> boundType = null;
       try {
-        // 解析命名空间对应的类型.
+        // 加载命名空间对应的Class.
         boundType = Resources.classForName(namespace);
       } catch (ClassNotFoundException e) {
         // ignore, bound type is not required
@@ -523,7 +523,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         // Spring may not know the real resource name so we set a flag
         // to prevent loading again this resource from the mapper interface
         // look at MapperAnnotationBuilder#loadXmlResource
-        // 追加namespace前缀,并添加到loadedResources集合中保存.
+        // 在当前Class全局限定符前追加namespace,并添加到loadedResources集合中保存,表示已加载过.
         configuration.addLoadedResource("namespace:" + namespace);
         // 加载mapper.xml中namespace指定的mapper接口类.
         // 创建Mapper接口与对应的MapperProxyFactory对象,并添加到knowMapper中.

@@ -231,7 +231,8 @@ public class XPathParser {
     return evalNode(document, expression);
   }
 
-  // 返回节点.
+  // 获取指定节点的XNode对象.
+  // 并尝试将该节点中的${}占位符替换为在Configuration -> variables集合中指定属性的value,获取不到则保持原样.
   public XNode evalNode(Object root, String expression) {
     Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
     if (node == null) {

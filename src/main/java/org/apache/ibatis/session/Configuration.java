@@ -127,6 +127,7 @@ public class Configuration {
   // 设置为true后,MyBatis会返回一个空实例.
   //  注意:包括嵌套对象也是一个空实例对象(如集合或实体对象).
   protected boolean returnInstanceForEmptyRow;
+  // 是否在处理sql文本时,删除\r\n等转义符.
   protected boolean shrinkWhitespacesInSql;
 
   // 输出的日志中的类名,增加指定前缀.
@@ -198,7 +199,7 @@ public class Configuration {
   // 脚本语言注册器.
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
-  // 通过 类的全局限定符.方法名 格式字符串,找到存储了对应sql语句的MappedStatement对象.
+  // 通过 类的全局限定符.方法名(或sql语句节点id) 格式字符串,找到存储了对应sql语句的MappedStatement对象.
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
@@ -210,9 +211,9 @@ public class Configuration {
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
   // 存储
-  //  在mybatis-config.xml中mappers标签中定义的resource类型的mapper标签的value(mappers/empDao.xml).
-  //  已加载过的namespace为 interface Class全局限定符 的mapper接口对应的xml文件.
-  //  正在加载中的 namespace:Class全局限定符 的mapper接口对应的xml文件.
+  //  mappers/empDao.xml: 加载过的在mybatis-config.xml中mappers标签中定义的resource类型的mapper标签的value指定的xml文件.
+  //  interface Class全局限定符: 加载过的mapper接口为该格式(interface com.personal.dao.EmpDao).
+  //  namespace:Class全局限定符: 加载过的mapper.xml文件为该格式(namespace:com.personal.dao.EmpDao).
   protected final Set<String> loadedResources = new HashSet<>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 

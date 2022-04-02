@@ -38,6 +38,7 @@ public class XMLScriptBuilder extends BaseBuilder {
   // 标记是否为动态sql.
   private boolean isDynamic;
   private final Class<?> parameterType;
+  // 存储sql语法中的关键词和对应的关键词的处理器.
   private final Map<String, NodeHandler> nodeHandlerMap = new HashMap<>();
 
   public XMLScriptBuilder(Configuration configuration, XNode context) {
@@ -65,7 +66,7 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
   public SqlSource parseScriptNode() {
-    // 判断当前的节点是否属于动态sql(包含${}占位符 或 动态sql相关标签的).
+    // 判断当前的节点是否属于动态sql(经过XNode构造方法解析${}占位符后,还存在${}占位符的文本 或 动态sql相关标签的).
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
     SqlSource sqlSource;
     // 根据是否为动态sql,来选择对应的SqlSource对象.
@@ -83,18 +84,19 @@ public class XMLScriptBuilder extends BaseBuilder {
     // 获取SelectKey的所有子节点.
     NodeList children = node.getNode().getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
-      // 创建XNode,该过程会将能解析掉的${}占位符都解析掉.
+      // 创建XNode,该过程会将能解析掉的${}占位符都解析掉(尝试通过Configuration -> variables获取属性值).
       XNode child = node.newXNode(children.item(i));
-      // 对文本节点的处理.
+      // 对CDATA和文本类型节点进行处理处理.
       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
         String data = child.getStringBody("");
         TextSqlNode textSqlNode = new TextSqlNode(data);
-        // 解析SQL语句,如果含有未解析的${}占位符,则为动态SQL.
+        // 如果此时文本中还存在未解析的${}占位符,则表示为动态sql.
         if (textSqlNode.isDynamic()) {
           contents.add(textSqlNode);
           // 标记为动态SQL语句.
           isDynamic = true;
         } else {
+          // 创建静态sql文本节点对象.
           contents.add(new StaticTextSqlNode(data));
         }
       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628

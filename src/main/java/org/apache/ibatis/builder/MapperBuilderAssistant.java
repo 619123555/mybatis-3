@@ -286,7 +286,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       throw new IncompleteElementException("Cache-ref not yet resolved");
     }
 
-    // 生成当前sql语句的id(mapper接口的全局限定符.sql标签id)
+    // 生成当前sql语句节点的id(mapper接口的全局限定符.sql标签id)
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 

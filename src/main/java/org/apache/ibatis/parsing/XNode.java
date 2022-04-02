@@ -46,7 +46,7 @@ public class XNode {
   private final XPathParser xpathParser;
 
   // 在构造时就把一些信息解析好,以便后续直接通过getter方法获取.
-  //  尝试将属性,body中的${}占位符,替换为Configuration -> variables集合中指定属性的value.
+  //  尝试将属性和body中的${}占位符,替换为Configuration -> variables集合中指定属性的value.
   //  如果替换失败则保持原样.
   public XNode(XPathParser xpathParser, Node node, Properties variables) {
     this.xpathParser = xpathParser;
@@ -339,7 +339,7 @@ public class XNode {
 
   private Properties parseAttributes(Node n) {
     Properties attributes = new Properties();
-    // 获取节点的属性集合.
+    // 获取当前节点中的的所有属性(<mapper namespace="com.personal.dal.EmpDao"> 会获取到namespace属性).
     NamedNodeMap attributeNodes = n.getAttributes();
     if (attributeNodes != null) {
       for (int i = 0; i < attributeNodes.getLength(); i++) {
@@ -354,7 +354,7 @@ public class XNode {
   }
 
   private String parseBody(Node node) {
-    // 取不到body,循环取子节点的body,只要取到第一个,立即返回.
+    // 当前节点不存在body文本,则循环取子节点的body文本,只要取到第一个,立即返回.
     String data = getBodyData(node);
     // 当前节点不是文本节点.
     if (data == null) {
@@ -362,6 +362,7 @@ public class XNode {
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
         Node child = children.item(i);
+        // 递归获取,直到取到body文本.
         data = getBodyData(child);
         if (data != null) {
           break;

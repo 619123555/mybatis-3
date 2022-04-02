@@ -37,7 +37,7 @@ public class MapperRegistry {
 
   // configuration对象,mybatis全局唯一的配置对象,其中包含了所有配置信息.
   private final Configuration config;
-  // 存储Mapper接口与对应的MapperProxyFactory(mapper代理工厂对象)之间的关系.
+  // 存储Mapper接口Class与对应的MapperProxyFactory(mapper代理工厂对象)之间的关系.
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
@@ -69,7 +69,7 @@ public class MapperRegistry {
   public <T> void addMapper(Class<T> type) {
     // 只会处理接口.
     if (type.isInterface()) {
-      // 检测是否已经处理过该Class.
+      // 检测是否已经加载过该Class,如果已经加载过则抛出异常.
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
       }

@@ -100,7 +100,7 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
     KeyGenerator keyGenerator;
-    // 获取selectKey节点对应的SelectKeyGenerator的id(mapper接口Class的全局限定符.方法名!selectKey).
+    // 获取selectKey节点对应的SelectKeyGenerator的id(各式为 mapper接口Class的全局限定符.方法名!selectKey).
     String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
     // SQL节点下存在SelectKey节点.
@@ -113,7 +113,7 @@ public class XMLStatementBuilder extends BaseBuilder {
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
 
-    // 将sql语句标签的内容解析成SqlSource对象,一般是DynamicSqlSource(存在${}占位符或使用了动态sql相关标签),StaticSqlSource(存在#{}占位符).
+    // 将sql语句标签的内容解析成SqlSource对象,一般是DynamicSqlSource(sql文本中存在${}占位符或使用了动态sql相关标签),StaticSqlSource(存在#{}占位符).
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     // 获取用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认STATEMENT.
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
