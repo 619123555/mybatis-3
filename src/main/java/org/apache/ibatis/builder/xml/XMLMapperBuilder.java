@@ -100,9 +100,9 @@ public class XMLMapperBuilder extends BaseBuilder {
       // 解析mapper标签.
       configurationElement(parser.evalNode("/mapper"));
 
-      // 将namespace添加到configuration中的loadedResource集合中,表示已加载过.
+      // 将namespace添加到configuration中的loadedResource集合中,表示已加载过该namespace的mapper.xml.
       configuration.addLoadedResource(resource);
-      // 将mapper.xml通过namespace与Mapper接口绑定(该操作是递归).
+      // 加载mapper.xml中namespace指定的Mapper接口对象,并将该Class与Mapper工厂对象绑定,一起添加到knownMappers中(该操作是递归).
       bindMapperForNamespace();
     }
 
@@ -518,7 +518,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       } catch (ClassNotFoundException e) {
         // ignore, bound type is not required
       }
-      // 校验是否已经绑定了Mapper接口与mapper对应的MapperProxyFactory对象关系(knowMapper).
+      // 校验是否已加载过mapper.xml中namespace指定的mapper接口(knowMapper).
       if (boundType != null && !configuration.hasMapper(boundType)) {
         // Spring may not know the real resource name so we set a flag
         // to prevent loading again this resource from the mapper interface

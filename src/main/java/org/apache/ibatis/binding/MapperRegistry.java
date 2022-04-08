@@ -82,6 +82,7 @@ public class MapperRegistry {
         // mapper parser. If the type is already known, it won't try.
         // 创建mapper接口注解构建器对象,并获取对应的mapper.xml路径.
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        // 解析mapper.xml文件.
         parser.parse();
         loadCompleted = true;
       } finally {
@@ -117,8 +118,8 @@ public class MapperRegistry {
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
     Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getClasses();
     for (Class<?> mapperClass : mapperSet) {
-      // 将Class与代理工厂对象绑定关系并添加到knowMapper中.
-      // 添加到映射关系注册器中.
+      // 解析该Class接口,并将Class与对应的代理工厂对象绑定关系并添加到knowMapper中.
+      // 解析该Class对应的mapper.xml文件,并添加到映射关系注册器中.
       addMapper(mapperClass);
     }
   }

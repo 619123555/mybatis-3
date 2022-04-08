@@ -118,12 +118,12 @@ public class MapperAnnotationBuilder {
   public void parse() {
     // interface 全局限定符,格式的字符串.
     String resource = type.toString();
-    // 检测是否已经加载过该接口.
+    // 检测是否已经加载过该mapper接口.
     if (!configuration.isResourceLoaded(resource)) {
       // 检测是否加载过对应的映射配置文件,如果未加载,则尝试去该Class同级目录下或classPath目录中的同级目录下获取同名的.xml文件输入字节流.
-      // 并创建XMLMapperBuilder对象来解析对应的映射文件.
+      // 并创建XMLMapperBuilder对象来解析对应的mapper.xml文件.
       loadXmlResource();
-      // 将该Class的全局限定符添加到Configuration中的loadedResource集合中,标记该Class已被处理过(尝试加载过对应的xml文件).
+      // 将该Class的 interface 全局限定符 格式的字符串添加到Configuration中的loadedResource集合中,标记该Mapper接口已加载过(尝试加载过对应的xml文件).
       configuration.addLoadedResource(resource);
       // 设置当前Class对应的namespace.
       assistant.setCurrentNamespace(type.getName());
