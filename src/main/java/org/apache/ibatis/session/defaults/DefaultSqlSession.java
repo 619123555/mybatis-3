@@ -40,6 +40,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * 默认SqlSession实现,不是线程安全的.
+ *
  * The default implementation for {@link SqlSession}.
  * Note that this class is not Thread-Safe.
  *
@@ -51,7 +53,9 @@ public class DefaultSqlSession implements SqlSession {
   private final Executor executor;
 
   private final boolean autoCommit;
+  // 当前缓存中是否有脏数据.
   private boolean dirty;
+  // 为防止用户忘记关闭已打开的游标对象,会通过cursorList字段记录由SqlSession对象生成的游标对象,在DefaultSqlSession.close方法会统一关闭这些游标对象.
   private List<Cursor<?>> cursorList;
 
   public DefaultSqlSession(Configuration configuration, Executor executor, boolean autoCommit) {
@@ -73,6 +77,7 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public <T> T selectOne(String statement, Object parameter) {
     // Popular vote was to return null on 0 results and throw exception on too many.
+    // 注意: 当没有查询结果时会返回null,因此建议在mapper中编写resultType的时候使用包装类型,而不是基本类型,比如推荐使用Integer而不是int,这样就可以避免NPE.
     List<T> list = this.selectList(statement, parameter);
     if (list.size() == 1) {
       return list.get(0);
@@ -145,9 +150,12 @@ public class DefaultSqlSession implements SqlSession {
     return selectList(statement, parameter, rowBounds, Executor.NO_RESULT_HANDLER);
   }
 
+  // 核心selectList.
   private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
+      // 根据statement id找到对应的MappedStatement.
       MappedStatement ms = configuration.getMappedStatement(statement);
+      // 用执行器来查询结果,注意这里传入的ResultHandler是null.
       return executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);

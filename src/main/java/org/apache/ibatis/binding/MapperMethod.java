@@ -58,9 +58,12 @@ public class MapperMethod {
 
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
+    // 根据SQL语句的类型调用SqlSession对应的方法.
     switch (command.getType()) {
       case INSERT: {
+        // 使用ParamNameResolver处理args数组,将用户传入的实参与指定参数名称关联起来.
         Object param = method.convertArgsToSqlCommandParam(args);
+        // 调用sqlSession.insert方法,rowCountResult方法会根据method字段中记录的方法的返回值类型对结果进行转换.
         result = rowCountResult(sqlSession.insert(command.getName(), param));
         break;
       }
@@ -76,15 +79,22 @@ public class MapperMethod {
       }
       case SELECT:
         if (method.returnsVoid() && method.hasResultHandler()) {
+          // 处理返回值为void,并且返回值处理器不为空的方法.
+          // 如果有结果处理器.
           executeWithResultHandler(sqlSession, args);
           result = null;
         } else if (method.returnsMany()) {
+          // 处理返回值为集合和数组的方法.
+          // 如果结果有多条记录.
           result = executeForMany(sqlSession, args);
         } else if (method.returnsMap()) {
+          // 处理返回值为map的方法
           result = executeForMap(sqlSession, args);
         } else if (method.returnsCursor()) {
+          // 处理返回值为cursor的方法
           result = executeForCursor(sqlSession, args);
         } else {
+          // 处理返回值为单一对象的方法.
           Object param = method.convertArgsToSqlCommandParam(args);
           result = sqlSession.selectOne(command.getName(), param);
           if (method.returnsOptional()

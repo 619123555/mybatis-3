@@ -24,6 +24,8 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 绑定的SQL,是从SqlSource获取的,将动态内容都处理完成得到的SQL语句字符串,其中包括?,还有绑定的参数.
+ *
  * An actual SQL String got from an {@link SqlSource} after having processed any dynamic content.
  * The SQL may have SQL placeholders "?" and an list (ordered) of an parameter mappings
  * with the additional information for each parameter (at least the property name of the input object to read
@@ -35,10 +37,15 @@ import org.apache.ibatis.session.Configuration;
  */
 public class BoundSql {
 
+  // 该字段中记录了SQL语句,该SQL语句中可能含有?占位符.
   private final String sql;
+  // SQL中的参数属性集合,ParameterMapping的集合.
   private final List<ParameterMapping> parameterMappings;
+  // 客户端执行SQL时传入的实际参数.
   private final Object parameterObject;
+  // 空的HashMap集合,之后会复制DynamicContext.bindings集合中的内容.
   private final Map<String, Object> additionalParameters;
+  // additionalParameters集合对应的MetaObject对象.
   private final MetaObject metaParameters;
 
   public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {

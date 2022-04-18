@@ -137,19 +137,29 @@ public class ParamNameResolver {
   public Object getNamedParams(Object[] args) {
     final int paramCount = names.size();
     if (args == null || paramCount == 0) {
+      // 如果没参数.
       return null;
     } else if (!hasParamAnnotation && paramCount == 1) {
+      // 未使用@Param注解,并且只有一个参数.
       Object value = args[names.firstKey()];
+      // 如果参数是数组或集合类型,则转换为map对象.
       return wrapToMapIfCollection(value, useActualParamName ? names.get(0) : null);
     } else {
+      // param这个map记录了参数名称与实参之间的对应关系,ParamMap继承了HashMap,如果向paramMap中添加已经存在的key,会报错.
       final Map<String, Object> param = new ParamMap<>();
       int i = 0;
       for (Map.Entry<Integer, String> entry : names.entrySet()) {
+        // 将参数名称与实参对应关系记录到param中.
         param.put(entry.getValue(), args[entry.getKey()]);
         // add generic param names (param1, param2, ...)
+        // 为参数创建param+索引格式的默认参数名称,并添加到param集合中.
         final String genericParamName = GENERIC_NAME_PREFIX + (i + 1);
         // ensure not to overwrite parameter named with @Param
+        // 如果@param注解指定的参数名称就是param+索引格式的,则不需要添加.
         if (!names.containsValue(genericParamName)) {
+          // 再加一个#{param1},#{param2}...参数.
+          // 可以传递多个参数给一个映射器方法,如果你这样做了,默认情况下它们将会以它们在参数列表中的位置来命名,比如:#{param1},#{param2}等.
+          // 如果想改变参数的名称(只在多参数情况下),那么你可以在参数上使用@Param(“paramName”)注解.
           param.put(genericParamName, args[entry.getKey()]);
         }
         i++;
@@ -169,6 +179,7 @@ public class ParamNameResolver {
    */
   public static Object wrapToMapIfCollection(Object object, String actualParamName) {
     if (object instanceof Collection) {
+      // 如果是集合类型参数.
       ParamMap<Object> map = new ParamMap<>();
       map.put("collection", object);
       if (object instanceof List) {
@@ -177,6 +188,7 @@ public class ParamNameResolver {
       Optional.ofNullable(actualParamName).ifPresent(name -> map.put(name, object));
       return map;
     } else if (object != null && object.getClass().isArray()) {
+      // 如果是数组类型参数.
       ParamMap<Object> map = new ParamMap<>();
       map.put("array", object);
       Optional.ofNullable(actualParamName).ifPresent(name -> map.put(name, object));

@@ -57,29 +57,38 @@ public class SelectKeyGenerator implements KeyGenerator {
 
   private void processGeneratedKeys(Executor executor, MappedStatement ms, Object parameter) {
     try {
+      // 检测用户传入的实参.
       if (parameter != null && keyStatement != null && keyStatement.getKeyProperties() != null) {
+        // 获取selectKey节点的keyProperties配置的属性名称,表示主键对应的属性.
         String[] keyProperties = keyStatement.getKeyProperties();
         final Configuration configuration = ms.getConfiguration();
+        // 创建用户传入的实参对象对应的metaObject对象.
         final MetaObject metaParam = configuration.newMetaObject(parameter);
         // Do not close keyExecutor.
         // The transaction will be closed by parent executor.
+        // 创建Executor对象,并执行keyStatement字段中记录的SQL语句,并得到主键对象.
         Executor keyExecutor = configuration.newExecutor(executor.getTransaction(), ExecutorType.SIMPLE);
         List<Object> values = keyExecutor.query(keyStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER);
+        // 检测values集合的长度,该集合长度只能为1.
         if (values.size() == 0) {
           throw new ExecutorException("SelectKey returned no data.");
         } else if (values.size() > 1) {
           throw new ExecutorException("SelectKey returned more than one value.");
         } else {
+          // 创建主键对象对应的MetaObject对象.
           MetaObject metaResult = configuration.newMetaObject(values.get(0));
           if (keyProperties.length == 1) {
             if (metaResult.hasGetter(keyProperties[0])) {
+              // 从主键对象中获取指定属性,设置到用户参数的对应属性中.
               setValue(metaParam, keyProperties[0], metaResult.getValue(keyProperties[0]));
             } else {
               // no getter for the property - maybe just a single value object
               // so try that
+              // 如果主键对象不包含指定属性的getter方法,可能是一个基本类型,直接将主键对象设置到用户参数中.
               setValue(metaParam, keyProperties[0], values.get(0));
             }
           } else {
+            // 处理主键有多列的情况,其实现是从主键对象中取出指定属性,并设置到用户参数的对应属性中.
             handleMultipleProperties(keyProperties, metaParam, metaResult);
           }
         }

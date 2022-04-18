@@ -70,6 +70,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 
   @Override
   public void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
+    // 将用户传入的实参parameter封装成集合类型,然后传入processBatch方法中处理.
     processBatch(ms, stmt, parameter);
   }
 

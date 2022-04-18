@@ -57,9 +57,13 @@ public class SimpleExecutor extends BaseExecutor {
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
     Statement stmt = null;
     try {
+      // 获取配置对象.
       Configuration configuration = ms.getConfiguration();
+      // 创建StatementHandler对象,实际返回的是RoutingStatementHandler对象.
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+      // 完成Statement的创建和初始化.
       stmt = prepareStatement(handler, ms.getStatementLog());
+      // 调用query方法执行sql语句,并通过ResultSetHandler完成结果集的映射.
       return handler.query(stmt, resultHandler);
     } finally {
       closeStatement(stmt);
