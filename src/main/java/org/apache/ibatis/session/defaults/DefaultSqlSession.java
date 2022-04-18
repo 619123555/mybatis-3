@@ -77,7 +77,8 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public <T> T selectOne(String statement, Object parameter) {
     // Popular vote was to return null on 0 results and throw exception on too many.
-    // 注意: 当没有查询结果时会返回null,因此建议在mapper中编写resultType的时候使用包装类型,而不是基本类型,比如推荐使用Integer而不是int,这样就可以避免NPE.
+    // 注意: 当没有查询结果时selectList会返回null.
+    //    因此建议在mapper中编写resultType的时候使用包装类型,而不是基本类型,比如推荐使用Integer而不是int,这样就可以避免NullPointException.
     List<T> list = this.selectList(statement, parameter);
     if (list.size() == 1) {
       return list.get(0);
