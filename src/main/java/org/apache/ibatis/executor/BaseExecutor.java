@@ -152,7 +152,7 @@ public abstract class BaseExecutor implements Executor {
     try {
       // 增加查询层数.
       queryStack++;
-      // 查询一级缓存.
+      // 尝试通过一级缓存获取结果.
       list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
       if (list != null) {
         // 针对存储过程调用的处理,在一级缓存命中时,获取缓存中保存的输出类型参数,并设置到用户传入的实参对象中.
@@ -222,6 +222,7 @@ public abstract class BaseExecutor implements Executor {
     // mimic DefaultParameterHandler logic
     // 获取用户传入的实参,并添加到CacheKey对象中.
     for (ParameterMapping parameterMapping : parameterMappings) {
+      // 如果不是输出类型(存储结构中的输出类型)的参数.
       if (parameterMapping.getMode() != ParameterMode.OUT) {
         Object value;
         String propertyName = parameterMapping.getProperty();
@@ -340,7 +341,7 @@ public abstract class BaseExecutor implements Executor {
 
   private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
     List<E> list;
-    // 在缓存中添加占位符.
+    // 在一级缓存中添加占位符.
     localCache.putObject(key, EXECUTION_PLACEHOLDER);
     try {
       // 完成数据库查询操作,并返回结果对象.

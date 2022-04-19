@@ -59,9 +59,9 @@ public class SimpleExecutor extends BaseExecutor {
     try {
       // 获取配置对象.
       Configuration configuration = ms.getConfiguration();
-      // 创建StatementHandler对象,实际返回的是RoutingStatementHandler对象.
+      // 创建语句处理器对象,实际返回的是RoutingStatementHandler对象.
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
-      // 完成Statement的创建和初始化.
+      // 完成sql语句的创建和初始化(从连接池中获取连接器对象,并设置事务是否自动提交,超时时间等等属性).
       stmt = prepareStatement(handler, ms.getStatementLog());
       // 调用query方法执行sql语句,并通过ResultSetHandler完成结果集的映射.
       return handler.query(stmt, resultHandler);
@@ -87,7 +87,9 @@ public class SimpleExecutor extends BaseExecutor {
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
+    // 通过事务对象中持有的数据源对象,获取数据库连接对象,同时设置是否自动提交事务.
     Connection connection = getConnection(statementLog);
+    // 处理连接与语句
     stmt = handler.prepare(connection, transaction.getTimeout());
     handler.parameterize(stmt);
     return stmt;

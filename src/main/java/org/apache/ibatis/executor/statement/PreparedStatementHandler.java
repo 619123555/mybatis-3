@@ -77,7 +77,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
 
   @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
-    // 获取待执行的SQL语句.
+    // 获取待执行的sql语句字符串.
     String sql = boundSql.getSql();
     // 根据keyGenerator字段的值,创建PreparedStatement对象.
     if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {

@@ -46,7 +46,7 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class MapperMethod {
 
-  // 纯粹SQL语句的名称和类型(UNKNOWN,INSERT,UPDATE,DELETE,SELECT,FLUSH).
+  // sql语句(MappedStatement)对象的名称和类型(UNKNOWN,INSERT,UPDATE,DELETE,SELECT,FLUSH).
   private final SqlCommand command;
   // mapper接口中对应方法的相关信息.
   private final MethodSignature method;
