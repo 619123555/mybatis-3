@@ -131,7 +131,7 @@ public class MapperAnnotationBuilder {
       parseCache();
       // 解析Class中的@CacheNamespaceRef注解.
       parseCacheRef();
-      // 遍历解析Class中定义的非default方法.
+      // 遍历解析Class中定义的非default方法中的注解.
       for (Method method : type.getMethods()) {
         // 如果是桥接方法或default方法则跳过.
         if (!canHaveStatement(method)) {
