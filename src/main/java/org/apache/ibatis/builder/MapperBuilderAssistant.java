@@ -60,6 +60,8 @@ public class MapperBuilderAssistant extends BaseBuilder {
   private String currentNamespace;
   // 存储mapper.xml文件路径.
   private final String resource;
+  // 当前Class对应的二级缓存规则对象,通过@CacheNamespace,@CacheNamespaceRef注解或cache,cache-ref标签创建的.
+  // 当cache与cache-ref共同存在时,会使用cache标签的规则.
   private Cache currentCache;
   private boolean unresolvedCacheRef; // issue #676
 
@@ -114,12 +116,16 @@ public class MapperBuilderAssistant extends BaseBuilder {
       throw new BuilderException("cache-ref element requires a namespace attribute.");
     }
     try {
+      // 标识未成功解析的cache引用.
       unresolvedCacheRef = true;
+      // 获取namespace对应的cache对象.
       Cache cache = configuration.getCache(namespace);
       if (cache == null) {
         throw new IncompleteElementException("No cache for namespace '" + namespace + "' could be found.");
       }
+      // 记录当前命名空间使用的cache对象.
       currentCache = cache;
+      // 标记已成功解析cache引用.
       unresolvedCacheRef = false;
       return cache;
     } catch (IllegalArgumentException e) {

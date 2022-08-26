@@ -49,6 +49,7 @@ public class GenericTokenParser {
     char[] src = text.toCharArray();
     int offset = 0;
     final StringBuilder builder = new StringBuilder();
+    // 临时存储每个${}占位符中的参数名称.
     StringBuilder expression = null;
     do {
       // 如果 开始字符串格式 不为空,并且前边是\\符号,则将\\符号删除并替换为 开始字符串格式.
@@ -85,6 +86,7 @@ public class GenericTokenParser {
           builder.append(src, start, src.length - start);
           offset = src.length;
         } else {
+          // 设置当前TextSqlNode为isDynamic动态sql,并修改原sql的占位符为 null 值字符串.
           builder.append(handler.handleToken(expression.toString()));
           offset = end + closeToken.length();
         }

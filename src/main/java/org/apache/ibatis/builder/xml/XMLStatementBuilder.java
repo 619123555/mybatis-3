@@ -56,10 +56,10 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   public void parseStatementNode() {
+    // 获取SQL节点的id以及databaseId属性.
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");
 
-    // 判断sql标签是否指定了数据库id,是否已生成过当前sql标签id对应的MapperStatement对象.
     if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
       // 没有指定数据库id 或 已生成过当前sql标签id对应的MapperStatement对象,则直接返回.
       return;
@@ -95,7 +95,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     LanguageDriver langDriver = getLanguageDriver(lang);
 
     // Parse selectKey after includes and remove them.
-    // 解析之前先解析selectKey标签.
+    // 解析之前先解析selectKey标签,该标签一般用来在insert时获取mysql表的自增id(select LAST_INSERT_ID()).
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
@@ -103,7 +103,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     // 获取selectKey节点对应的SelectKeyGenerator的id(各式为 mapper接口Class的全局限定符.方法名!selectKey).
     String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
-    // SQL节点下存在SelectKey节点.
+    // SQL节点下存在SelectKey节点,则使用该节点来生成主键,否则根据全局配置中的useGeneratedKeys获取主键生成器 或 使用默认的Jdbc3KeyGenerator主键生成器.
     if (configuration.hasKeyGenerator(keyStatementId)) {
       keyGenerator = configuration.getKeyGenerator(keyStatementId);
     } else {
@@ -115,15 +115,15 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // 将sql语句标签的内容解析成SqlSource对象,一般是DynamicSqlSource(sql文本中存在${}占位符或使用了动态sql相关标签),StaticSqlSource(存在#{}占位符).
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
-    // 获取用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认STATEMENT.
+    // 获取当前标签用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认STATEMENT.
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
-    // 获取用户设置的每次批量返回的结果行数属性.
+    // 获取当前标签用户设置的每次批量返回的结果行数属性.
     Integer fetchSize = context.getIntAttribute("fetchSize");
-    // 获取用户设置的超时时间属性.
+    // 获取当前标签用户设置的超时时间属性.
     Integer timeout = context.getIntAttribute("timeout");
-    // 获取用户设置的引用外部的parameterMap.
+    // 获取当前标签用户设置的引用外部的parameterMap.
     String parameterMap = context.getStringAttribute("parameterMap");
-    // 获取用户设置的结果类型.
+    // 获取当前标签用户设置的结果类型.
     String resultType = context.getStringAttribute("resultType");
     Class<?> resultTypeClass = resolveClass(resultType);
     // 获取用户设置的引用外部的resultMap.

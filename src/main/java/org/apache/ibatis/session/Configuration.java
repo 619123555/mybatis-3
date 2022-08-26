@@ -117,7 +117,7 @@ public class Configuration {
   protected boolean useGeneratedKeys;
   // 使用列标签代替列名,实际表现依赖于数据库驱动,具体可参考数据库驱动的相关文档.
   protected boolean useColumnLabel = true;
-  // 开启或关闭全局缓存(二级缓存？？？？),如果关闭,所有配置的缓存都将失效.
+  // 开启或关闭全局二级缓存,如果关闭,所有mapper.xml中配置的缓存规则都将失效.
   protected boolean cacheEnabled = true;
   // 指定当结果集中,值为null时,是否调用实体对象的setter(map对象时为put)方法,这在依赖于Map.keySet()或null值进行初始化时比较有用,注意基本类型(int,boolean等)是不能设置成null的.
   protected boolean callSettersOnNulls;
@@ -199,11 +199,12 @@ public class Configuration {
   // 脚本语言注册器.
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
-  // 通过 类的全局限定符.方法名(或sql语句节点id) 格式字符串,找到存储了对应sql语句的MappedStatement对象.
+  // 存储了所有sql语句对应的MappedStatement对象.
+  // 类的全局限定符.方法名(或sql语句节点id) - MappedStatement格式.
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
-  // 缓存.
+  // 缓存,只有开启了cache-ref标签的mapper.xml才会有.
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
   // 结果映射,存在Map里.
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
@@ -219,7 +220,9 @@ public class Configuration {
 
   // 不完整的SQL语句.
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
-  // 存储未完全解析的mapper.
+  // 存储所有未完成cache-ref标签解析的mapper.
+  //  在解析cache-ref标签时,由于指定的namespace对应的Cache对象还未创建,
+  //  导致无法配置Cache对象,所以在每个mapper解析完成后都遍历一遍该集合,尝试重新配置.
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
   protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();

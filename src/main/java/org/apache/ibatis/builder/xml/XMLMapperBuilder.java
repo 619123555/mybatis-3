@@ -56,7 +56,7 @@ import org.apache.ibatis.type.TypeHandler;
 public class XMLMapperBuilder extends BaseBuilder {
 
   private final XPathParser parser;
-  // xml构建助手.
+  // xml构建助手,存储了关于当前mapper.xml中的所有信息,包括各个select,update,insert,delete标签的MapperStatement对象.
   private final MapperBuilderAssistant builderAssistant;
   // 用来存放用户在mapper中定义的可重用的sql片段(sql标签).
   private final Map<String, XNode> sqlFragments;
@@ -97,7 +97,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     //  用户在mapper-config.xml -> mappers标签中的mapper标签中的resource属性指定的mapper.xml文件路径时为 mappers/empDao.xml.
     //  用户在mapper-config.xml -> mappers标签中的package标签指定的目录中的mapper.xml文件路径时为 Class的全局限定符.xml.
     if (!configuration.isResourceLoaded(resource)) {
-      // 解析mapper标签.
+      // 解析mapper.xml中的所有标签,并创建一些对象,添加到Configuration中.
       configurationElement(parser.evalNode("/mapper"));
 
       // 将namespace添加到configuration中的loadedResource集合中,表示已加载过该namespace的mapper.xml.
@@ -106,9 +106,13 @@ public class XMLMapperBuilder extends BaseBuilder {
       bindMapperForNamespace();
     }
 
-    // 遍历处理未完成处理的解析工作.
+    // 尝试对所有未完成ResultMap解析的mapper,再次进行解析.
     parsePendingResultMaps();
+    // 尝试对所有未完成cache-ref配置的mapper,再次进行解析.
+    //  在解析cache-ref标签时,由于指定的namespace对应的Cache对象还未创建,导致无法配置cache-ref指定的Cache对象,所以在每个mapper解析完成后都遍历一遍该集合,尝试配置.
+    //  注意: 这个时候是会覆盖根据cache标签创建的Cache对象.
     parsePendingCacheRefs();
+    // 尝试对所有未完成节点解析的mapper,再次进行解析.
     parsePendingStatements();
   }
 
@@ -125,9 +129,10 @@ public class XMLMapperBuilder extends BaseBuilder {
       }
       // 将namespace添加到builderAssistant对象中,方便后续使用.
       builderAssistant.setCurrentNamespace(namespace);
-      // 解析cache-ref标签.
+      // 解析cache-ref标签,并将指定的namespace的mapper.xml对应的Cache对象应用到当前mapper中.
+      // 这样当前mapper与被引用mapper的操作,会互相影响对方的缓存,因为用的是同一个Cache对象.
       cacheRefElement(context.evalNode("cache-ref"));
-      // 解析cache标签.
+      // 解析cache标签,并创建Cache对象(当与cache-ref标签共同使用时,cache会覆盖cache-ref缓存规则).
       cacheElement(context.evalNode("cache"));
       // 解析parameterMap标签(非select标签中的parameterMap,已弃用).
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
@@ -135,7 +140,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       resultMapElements(context.evalNodes("/mapper/resultMap"));
       // 解析sql标签(可重用sql代码段).
       sqlElement(context.evalNodes("/mapper/sql"));
-      // 解析select,update,insert,delete等标签.
+      // 解析select,update,insert,delete等标签,为每个标签创建对应的MappedStatement对象.
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -218,7 +223,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       // 创建CacheRefResolver对象.
       CacheRefResolver cacheRefResolver = new CacheRefResolver(builderAssistant, context.getStringAttribute("namespace"));
       try {
-        // 解析cache引用,该过程主要是设置MapperBuilderAssistant中的currentCache和unresolvedCache字段.
+        // 获取cache-ref标签中指定的namespace属性对应的缓存对象,并将该缓存规则应用到当前mapper.
         cacheRefResolver.resolveCacheRef();
       } catch (IncompleteElementException e) {
         // 如果解析过程中出现异常,则添加到Configuration.incompleteCacheRef集合.
@@ -232,10 +237,10 @@ public class XMLMapperBuilder extends BaseBuilder {
   // </mapper>
   private void cacheElement(XNode context) {
     if (context != null) {
-      // 获取cache节点的type属性,默认PERPETUAL.
+      // 获取cache节点的type属性,来设置缓存时效,默认PerpetualCache类(永久缓存).
       String type = context.getStringAttribute("type", "PERPETUAL");
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
-      // 获取eviction属性,默认LRU.
+      // 获取eviction属性,来设置缓存淘汰策略,默认LruCache(最近最少使用).
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
       // 获取flushInterval属性,默认是null(永不刷新).
