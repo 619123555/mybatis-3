@@ -92,7 +92,7 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
  * mapper接口注解构建器.
- *
+ * 该类主要功能为解析Mapper接口中的注解,以及该Mapper对应的xml文件.
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -120,6 +120,8 @@ public class MapperAnnotationBuilder {
     String resource = type.toString();
     // 检测是否已经加载过该mapper接口.
     if (!configuration.isResourceLoaded(resource)) {
+      // 开始加载并解析当前Class对应的mapper.xml,如果不存在也不会抛出异常,会继续尝试解析该Class中的注解.
+
       // 检测是否加载过对应的映射配置文件,如果未加载,则尝试去该Class同级目录下或classPath目录中的同级目录下获取同名的.xml文件输入字节流.
       // 并创建XMLMapperBuilder对象来解析对应的mapper.xml文件.
       loadXmlResource();
@@ -127,28 +129,34 @@ public class MapperAnnotationBuilder {
       configuration.addLoadedResource(resource);
       // 设置当前Class对应的namespace.
       assistant.setCurrentNamespace(type.getName());
+
+      // 开始解析当前Class中的注解,及方法中的注解.
+
       // 解析Class中的@CacheNamespace注解.
       parseCache();
       // 解析Class中的@CacheNamespaceRef注解.
       parseCacheRef();
-      // 遍历解析Class中定义的非default方法中的注解.
+      // 遍历解析Class中定义的非default方法与桥接方法中的注解.
       for (Method method : type.getMethods()) {
         // 如果是桥接方法或default方法则跳过.
         if (!canHaveStatement(method)) {
           continue;
         }
+        // 校验是否包含Select,SelectProvider注解,同时不包含ResultMap注解.
         if (getAnnotationWrapper(method, false, Select.class, SelectProvider.class).isPresent()
             && method.getAnnotation(ResultMap.class) == null) {
           parseResultMap(method);
         }
         try {
-          // 解析@SelectKey,@ResultMap等注解,并创建MappedStatement对象.
+          // 解析每个方法中的注解,并创建MappedStatement对象.
           parseStatement(method);
         } catch (IncompleteElementException e) {
+          // 出现异常的方法,添加到存储 未完成解析的Method 链表中.
           configuration.addIncompleteMethod(new MethodResolver(this, method));
         }
       }
     }
+    // 尝试处理未完成解析的Method.
     parsePendingMethods();
   }
 
@@ -321,6 +329,7 @@ public class MapperAnnotationBuilder {
     final LanguageDriver languageDriver = getLanguageDriver(method);
 
     getAnnotationWrapper(method, true, statementAnnotationTypes).ifPresent(statementAnnotation -> {
+      // 通过注解中定义的sql字符串,构建SqlSource对象.
       final SqlSource sqlSource = buildSqlSource(statementAnnotation.getAnnotation(), parameterTypeClass, languageDriver, method);
       final SqlCommandType sqlCommandType = statementAnnotation.getSqlCommandType();
       final Options options = getAnnotationWrapper(method, false, Options.class).map(x -> (Options)x.getAnnotation()).orElse(null);

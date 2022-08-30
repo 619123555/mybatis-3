@@ -86,7 +86,7 @@ public class CachingExecutor implements Executor {
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
     // 获取BoundSql对象.
     BoundSql boundSql = ms.getBoundSql(parameterObject);
-    // 创建一级缓存中的CacheKey对象,通过该对象作为key来增删一级缓存.
+    // 创建二级缓存中的CacheKey对象,该对象重写了equals()和hashCode()方法,后续通过该对象作为key来增删缓存.
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
@@ -94,13 +94,13 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
-    // 获取查询语句所在命名空间对应的二级缓存.
+    // 获取查询语句所在命名空间对应的二级缓存Cache对象.
     Cache cache = ms.getCache();
-    // 是否开启了二级缓存.
+    // Cache不为空,则表示开启了二级缓存.
     if (cache != null) {
       // 根据select节点的配置,决定是否需要清空二级缓存.
       flushCacheIfRequired(ms);
-      // 检测SQL节点的useCache配置,以及是否使用了resultHandler配置.
+      // 检测select标签的useCache配置,以及是否使用了resultHandler配置.
       if (ms.isUseCache() && resultHandler == null) {
         // 二级缓存不能保存输出类型的参数,如果查询操作调用了包含输出参数的存储过程,则报错.
         ensureNoOutParams(ms, boundSql);

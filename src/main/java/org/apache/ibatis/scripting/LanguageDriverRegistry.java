@@ -21,7 +21,7 @@ import java.util.Map;
 import org.apache.ibatis.util.MapUtil;
 
 /**
- * 脚本语言注册器.
+ * 脚本语言驱动注册器.
  *
  * @author Frank D. Martinez [mnesarco]
  */

@@ -46,14 +46,15 @@ public class ResultMap {
   private Class<?> type;
   // 记录了除discrimination节点之外的其他映射关系.
   private List<ResultMapping> resultMappings;
-  // 记录了映射关系中带有ID标志的映射关系.
+  // 记录了ResultMap标签中使用了id标签的ResultMappings对象.
   private List<ResultMapping> idResultMappings;
-  // 记录了映射关系中带有constructor标志的映射关系.
+  // 记录了ResultMap标签中使用了constructor标签的ResultMapping对象.
   private List<ResultMapping> constructorResultMappings;
-  // 记录了映射关系中不带有constructor标志的映射关系.
+  // 记录了ResultMap标签中非constructor标签的ResultMapping对象.
   private List<ResultMapping> propertyResultMappings;
-  // 记录了所有映射关系中设计的column属性的集合.
+  // 记录了ResultMap所有子标签中有效的column属性值,也就是数据库表的字段名称(值都为大写的).
   private Set<String> mappedColumns;
+  // 记录了ResultMap所有子标签中相应的java实体类中字段的名称.
   private Set<String> mappedProperties;
   // 鉴别器,对应discriminator节点.
   private Discriminator discriminator;
@@ -104,13 +105,16 @@ public class ResultMap {
       resultMap.constructorResultMappings = new ArrayList<>();
       resultMap.propertyResultMappings = new ArrayList<>();
       final List<String> constructorArgNames = new ArrayList<>();
+      // 遍历解析每个子标签的信息,并保存到当前ResultMap对象中,方便后续使用.
       for (ResultMapping resultMapping : resultMap.resultMappings) {
         resultMap.hasNestedQueries = resultMap.hasNestedQueries || resultMapping.getNestedQueryId() != null;
         resultMap.hasNestedResultMaps = resultMap.hasNestedResultMaps || (resultMapping.getNestedResultMapId() != null && resultMapping.getResultSet() == null);
         final String column = resultMapping.getColumn();
         if (column != null) {
+          // 平平无奇的数据库表字段名称,直接添加到集合中.
           resultMap.mappedColumns.add(column.toUpperCase(Locale.ENGLISH));
         } else if (resultMapping.isCompositeResult()) {
+          // 如果设置了select,foreignColumn属性,则将根据select或foreignColumn属性解析出来的字段columns,都添加进来.
           for (ResultMapping compositeResultMapping : resultMapping.getComposites()) {
             final String compositeColumn = compositeResultMapping.getColumn();
             if (compositeColumn != null) {
@@ -118,16 +122,20 @@ public class ResultMap {
             }
           }
         }
+        // 获取当前标签中的数据库表字段名称对应的java实体类中的字段名称.
         final String property = resultMapping.getProperty();
         if (property != null) {
           resultMap.mappedProperties.add(property);
         }
+        // 如果当前标签是constructor,则添加到对应的集合中,方便后续使用.
         if (resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR)) {
           resultMap.constructorResultMappings.add(resultMapping);
           if (resultMapping.getProperty() != null) {
+            // 将构造方法的参数名称添加到集合中.
             constructorArgNames.add(resultMapping.getProperty());
           }
         } else {
+          // 非构造方法标签,则直接添加到集合中.
           resultMap.propertyResultMappings.add(resultMapping);
         }
         if (resultMapping.getFlags().contains(ResultFlag.ID)) {
@@ -138,6 +146,7 @@ public class ResultMap {
         resultMap.idResultMappings.addAll(resultMap.resultMappings);
       }
       if (!constructorArgNames.isEmpty()) {
+        // 验证构造方法需要的参数名称是否全部存在.
         final List<String> actualArgNames = argNamesOfMatchingConstructor(constructorArgNames);
         if (actualArgNames == null) {
           throw new BuilderException("Error in result map '" + resultMap.id

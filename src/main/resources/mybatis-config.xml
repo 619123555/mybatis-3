@@ -80,5 +80,6 @@
         resource目录下配置的映射文件必须要具体相同的目录
         -->
         <package name="com.personal.dao"/>
+<!--        <mapper resource="com/personal/dao/EmpDao.xml"></mapper>-->
     </mappers>
 </configuration>

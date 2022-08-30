@@ -84,7 +84,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else {
-        // 根据被调用接口方法的method对象,从缓存中获取实现了MapperMethodInvoker接口的MapperMethod对象,如果没有则创建一个并放入缓存,然后调用invoke.
+        // 根据被调用接口方法的method对象,从缓存中获取实现了MapperMethodInvoker接口的MapperMethod函数对象,如果没有则创建一个并放入缓存,然后调用invoke.
         return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
       }
     } catch (Throwable t) {

@@ -196,17 +196,18 @@ public class Configuration {
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
   // 类型别名注册器,存储字符串别名与Class对象的绑定关系,该对象被创建时会初始化一些基础的别名和类型的绑定关系.
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
-  // 脚本语言注册器.
+  // 脚本语言驱动注册器,用来存储所有 语言驱动对象.
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
-  // 存储了所有sql语句对应的MappedStatement对象.
+  // 存储了所有 解析过的select,insert,delete,update等标签 对应的MappedStatement对象.
   // 类的全局限定符.方法名(或sql语句节点id) - MappedStatement格式.
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
-  // 缓存,只有开启了cache-ref标签的mapper.xml才会有.
+  // 二级缓存.
+  // 如果mapper中使用了 cache, cache-ref标签 或 @CacheNamespace, @CacheNamespaceRef注解,则一个mapper对应一个Cache对象.
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
-  // 结果映射,存在Map里.
+  // 存储resultMap标签解析后的ResultMap对象.
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
@@ -220,11 +221,14 @@ public class Configuration {
 
   // 不完整的SQL语句.
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
-  // 存储所有未完成cache-ref标签解析的mapper.
-  //  在解析cache-ref标签时,由于指定的namespace对应的Cache对象还未创建,
+  // 存储暂时无法完成cache-ref标签 或 CacheNamespace注解 解析的mapper.
+  //  在解析cache-ref标签 或 CacheNamespace注解时,由于指定的namespace对应的Cache对象还未创建,
   //  导致无法配置Cache对象,所以在每个mapper解析完成后都遍历一遍该集合,尝试重新配置.
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
+  // 存储暂时无法完成ResultMap标签解析的ResultMap标签的配置.
+  //  解析ResultMap时,如果依赖的父ResultMap尚未解析完成,则先加入到当前队列中,后续再处理.
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
+  // 存储暂时无法完成解析的Method对象(Mapper接口中的方法对象).
   protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
   /*
@@ -772,6 +776,8 @@ public class Configuration {
   }
 
   public void addCache(Cache cache) {
+    // 该caches对象是基于HashMap实现的,重写了put方法.
+    // 重写后的put方法,会校验key是否已经存在,存在则抛出异常.
     caches.put(cache.getId(), cache);
   }
 
@@ -1020,15 +1026,26 @@ public class Configuration {
       }
     }
   }
-
+  // <resultMap>
+  //  <discriminator javaType="java.lang.Integer" column="role_profile_flag">
+  //      <case value="1" resultMap="com.test.mapper.ElasticRoleUserMap"/>
+  //  </discriminator>
+  // </resultMap>
   // Slow but a one time cost. A better solution is welcome.
   protected void checkLocallyForDiscriminatedNestedResultMaps(ResultMap rm) {
+    // 不包含嵌套循环,并且鉴别器不等于空时.
     if (!rm.hasNestedResultMaps() && rm.getDiscriminator() != null) {
+      // 遍历该鉴别器的所有子标签.
       for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap().entrySet()) {
+        // 获取该ResultMap标签中某一个case标签的ResultMap定义的Key.
         String discriminatedResultMapName = entry.getValue();
+        // 如果ResultMaps集合中包含该case的resultMap属性中定义的Key.
         if (hasResultMap(discriminatedResultMapName)) {
+          // 获取该Key对应的ResultMap对象.
           ResultMap discriminatedResultMap = resultMaps.get(discriminatedResultMapName);
+          // 如果依赖的ResultMap对象中的嵌套ResultMap尚未解析成功.
           if (discriminatedResultMap.hasNestedResultMaps()) {
+            // 强制设置当前ResultMap对象的嵌套解析成功为false.
             rm.forceNestedResultMaps();
             break;
           }

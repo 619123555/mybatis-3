@@ -31,18 +31,23 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 public class ResultMapping {
 
   private Configuration configuration;
+  // 存储当前结果字段对应的java实体类中的名称.
   private String property;
   private String column;
+  // 存储当前结果字段对应的java类.
   private Class<?> javaType;
   private JdbcType jdbcType;
+  // 存储 解析当前字段的返回值时使用的处理程序对象.
   private TypeHandler<?> typeHandler;
   private String nestedResultMapId;
   private String nestedQueryId;
   private Set<String> notNullColumns;
   private String columnPrefix;
   private List<ResultFlag> flags;
+  // 存储引用的外部的数据库id字段名称等信息,通过代码看是在xsd文件中都已经不使用了.
   private List<ResultMapping> composites;
   private String resultSet;
+  // 应该是外部字段数据库表字段.
   private String foreignColumn;
   private boolean lazy;
 
@@ -136,7 +141,9 @@ public class ResultMapping {
       // lock down collections
       resultMapping.flags = Collections.unmodifiableList(resultMapping.flags);
       resultMapping.composites = Collections.unmodifiableList(resultMapping.composites);
+      // 设置解析该字段的返回值时,使用哪个类型处理程序类.
       resolveTypeHandler();
+      // 验证字段.
       validate();
       return resultMapping;
     }

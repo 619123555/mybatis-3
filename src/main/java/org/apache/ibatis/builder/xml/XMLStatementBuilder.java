@@ -95,7 +95,8 @@ public class XMLStatementBuilder extends BaseBuilder {
     LanguageDriver langDriver = getLanguageDriver(lang);
 
     // Parse selectKey after includes and remove them.
-    // 解析之前先解析selectKey标签,该标签一般用来在insert时获取mysql表的自增id(select LAST_INSERT_ID()).
+    // 如果存在selectKey标签,则需要先解析.
+    // 该标签一般用来在insert时获取mysql表的自增id(select LAST_INSERT_ID()).
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
@@ -222,7 +223,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     if (databaseId != null) {
       return false;
     }
-    // 生成当前sql语句的id(mapper接口全局限定符.sql语句id).
+    // 生成当前sql语句的id(mapper接口全局限定符.selectKey标签的id).
     id = builderAssistant.applyCurrentNamespace(id, false);
     // 如果未找到当前sql语句对应的MapperStatement对象,则返回true.
     if (!this.configuration.hasStatement(id, false)) {

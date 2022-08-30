@@ -22,7 +22,10 @@ import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 
 /**
- * 结果映射解析器.
+ * resultMap标签配置解析器.
+ * 按指定的配置规则,创建ResultMap对象.
+ * 使用当前对象的原因可能是因为当前ResultMap标签存在解析失败的情况,比如依赖的父ResultMap标签尚未解析成功,
+ * 这种情况直接将当前对象放入队列中,放后续直接调用resolve()方法,再次尝试解析.
  *
  * @author Eduardo Macarron
  */

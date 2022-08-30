@@ -56,6 +56,7 @@ public class XMLLanguageDriver implements LanguageDriver {
       return createSqlSource(configuration, parser.evalNode("/script"), parameterType);
     } else {
       // issue #127
+      // 解析注解中的sql时,直接获取注解中的sql字符串,并替换${}占位符.
       script = PropertyParser.parse(script, configuration.getVariables());
       TextSqlNode textSqlNode = new TextSqlNode(script);
       if (textSqlNode.isDynamic()) {
