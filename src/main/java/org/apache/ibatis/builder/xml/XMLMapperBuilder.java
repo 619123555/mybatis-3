@@ -110,13 +110,15 @@ public class XMLMapperBuilder extends BaseBuilder {
       bindMapperForNamespace();
     }
 
-    // 尝试对所有未完成ResultMap解析的mapper,再次进行解析.
+    // 尝试对所有未完成ResultMap解析的对象,再次进行解析.
+    //  在解析resultMap标签时,可能会因为使用了extends属性,并且依赖的父ResultMap标签未加载完成,导致无法处理,所以暂时加入未完成队列中.
     parsePendingResultMaps();
-    // 尝试对所有未完成cache-ref配置的mapper,再次进行解析.
+    // 尝试对所有未完成cache-ref配置的对象,再次进行解析.
     //  在解析cache-ref标签时,由于指定的namespace对应的Cache对象还未创建,导致无法配置cache-ref指定的Cache对象,所以在每个mapper解析完成后都遍历一遍该集合,尝试配置.
     //  注意: 这个时候是会覆盖根据cache标签 或 CacheNamespace注解 创建的Cache对象.
     parsePendingCacheRefs();
-    // 尝试对所有未完成节点解析的mapper,再次进行解析.
+    // 尝试对所有未完成select,update,insert,delete标签解析的MapperBuilderAssistant,再次进行解析.
+    //  在解析select,update,insert,delete标签时,如果当前mapper的cacheRef标签未解析完成,则先将MapperBuilderAssistant对象添加到未完成队列中.
     parsePendingStatements();
   }
 
@@ -312,7 +314,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) {
     // 错误上下文.
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
-    // 获取resultMap节点的type属性,表示结果集将被映射成type指定类型的对象.
+    // 获取resultMap节点的type属性,表示ResultMap将被映射成type指定类型的对象.
     String type = resultMapNode.getStringAttribute("type",
         resultMapNode.getStringAttribute("ofType",
             resultMapNode.getStringAttribute("resultType",
@@ -328,7 +330,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     List<XNode> resultChildren = resultMapNode.getChildren();
     for (XNode resultChild : resultChildren) {
       if ("constructor".equals(resultChild.getName())) {
-        // 处理constructor标签,并将解析该标签到的所有ResultMapping对象添加到集合中.
+        // 处理constructor标签,并将解析该标签得到的所有ResultMapping对象添加到集合中.
         processConstructorElement(resultChild, typeClass, resultMappings);
       } else if ("discriminator".equals(resultChild.getName())) {
         // 解析discriminator(鉴别器)标签.
@@ -470,9 +472,10 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   // 构建ResultMapping对象.
   private ResultMapping buildResultMappingFromContext(XNode context, Class<?> resultType, List<ResultFlag> flags) {
-    // 获取该节点的property的属性值.
     String property;
     if (flags.contains(ResultFlag.CONSTRUCTOR)) {
+      // 如果是constructor标签中的子标签,并且使用了select时,
+      // column字段会用在select指定的sql的参数名称上,所以需要通过name属性来标记java字段名称.
       property = context.getStringAttribute("name");
     } else {
       property = context.getStringAttribute("property");
@@ -481,6 +484,8 @@ public class XMLMapperBuilder extends BaseBuilder {
     String column = context.getStringAttribute("column");
     String javaType = context.getStringAttribute("javaType");
     String jdbcType = context.getStringAttribute("jdbcType");
+    // resultMap标签 -> association标签中的属性.
+    // 指定MapperStatement的Id, 在获取到当前sql结果后,根据结果中的某个字段去执行select指定的MapperStatement.
     String nestedSelect = context.getStringAttribute("select");
     // 先解析嵌套的resultMap标签.
     String nestedResultMap = context.getStringAttribute("resultMap", () ->
@@ -499,7 +504,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     return builderAssistant.buildResultMapping(resultType, property, column, javaTypeClass, jdbcTypeEnum, nestedSelect, nestedResultMap, notNullColumn, columnPrefix, typeHandlerClass, flags, resultSet, foreignColumn, lazy);
   }
 
-  // 处理嵌套的resultMap(association|collection| discriminatorMap -> case -> resultMap标签, 都属于嵌套ResultMap).
+  // 处理嵌套的resultMap(association|collection| discriminatorMap -> case的子标签, 都属于嵌套ResultMap).
   private String processNestedResultMappings(XNode context, List<ResultMapping> resultMappings, Class<?> enclosingType) {
     // 处理association|collection| discriminatorMap -> case标签.
     if (Arrays.asList("association", "collection", "case").contains(context.getName())

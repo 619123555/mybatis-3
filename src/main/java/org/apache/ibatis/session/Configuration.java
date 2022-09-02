@@ -890,7 +890,7 @@ public class Configuration {
   }
 
   public MappedStatement getMappedStatement(String id, boolean validateIncompleteStatements) {
-    // 先构建所有语句,再返回语句.
+    // 先尝试处理所有未完成解析的ResultMap,CacheRef,Statement标签的对象.
     if (validateIncompleteStatements) {
       buildAllStatements();
     }

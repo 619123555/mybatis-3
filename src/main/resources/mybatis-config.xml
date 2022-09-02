@@ -29,6 +29,9 @@
     <typeAliases>
         <package name="com.personal.bean"/>
     </typeAliases>
+    <typeHandlers>
+      <typeHandler handler="com.personal.test.SecurityCustomerTypeHandler" javaType="String" jdbcType="VARCHAR" />
+    </typeHandlers>
 <!--  <plugins>-->
 <!--    <plugin interceptor="com.github.pagehelper.PageHelper">-->
 <!--      <property name="dialect" value="mysql"/>-->

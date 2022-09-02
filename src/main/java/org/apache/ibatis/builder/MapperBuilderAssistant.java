@@ -66,6 +66,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
   //  cacheRef如果能直接获取到引用的namespace对象的Cache对象,则cache标签创建的Cache对象会覆盖cacheRef引用的Cache对象.
   //  cacheRef如果不能直接获取到引用的namespace对象的Cache对象,则cacheRef标签指向的Cache对象会在每个mapper解析完成后,尝试覆盖cache标签创建的Cache对象.
   private Cache currentCache;
+  // 标记是否解析完CacheRef标签.
   private boolean unresolvedCacheRef; // issue #676
 
   public MapperBuilderAssistant(Configuration configuration, String resource) {
@@ -237,7 +238,6 @@ public class MapperBuilderAssistant extends BaseBuilder {
     // 创建ResultMap对象,添加到configuration.resultMaps集合中.
     ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
         .discriminator(discriminator)
-        // 将ResultMap子标签转为ResultMapping对象,保存到集合中,方便后续直接使用.
         .build();
     // 添加到集合中时,如果id已存在,则抛出异常.
     configuration.addResultMap(resultMap);
@@ -458,12 +458,16 @@ public class MapperBuilderAssistant extends BaseBuilder {
       String resultSet,
       String foreignColumn,
       boolean lazy) {
+    // 通过property去resultType指定的实体类中获取对应的字段类型,得到该字段要转换为哪个javaType.
     Class<?> javaTypeClass = resolveResultJavaType(resultType, property, javaType);
+    // 获取该字段的类型处理程序.
     TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, typeHandler);
     List<ResultMapping> composites; // ???? 这些配置应该是不用了.
     if ((nestedSelect == null || nestedSelect.isEmpty()) && (foreignColumn == null || foreignColumn.isEmpty())) {
       composites = Collections.emptyList();
     } else {
+      // 使用了constructor,collection,association标签,并且使用了select属性时,会进入到这里.
+      // 这个时候如果select指定的sql需要的参数比较多,可以使用column字段,通过 , 号,将当前结果集中的多个字段,传过去.
       composites = parseCompositeColumnName(column);
     }
     // 构建一个完整的,可直接使用的resultMapping对象.

@@ -60,7 +60,7 @@ public class ResultMap {
   private Discriminator discriminator;
   // 是否含有嵌套的结果映射,如果某个映射关系中存在resultMap属性,且不存在resultSet属性,则为true.
   private boolean hasNestedResultMaps;
-  // 是否含有嵌套查询,如果某个属性映射存在select属性,则为true.
+  // 是否含有嵌套查询,如果当前ResultMap标签中包含constructor,collection,association并且使用了select属性,则为true.
   private boolean hasNestedQueries;
   // 是否开启自动映射.
   private Boolean autoMapping;
@@ -122,7 +122,7 @@ public class ResultMap {
             }
           }
         }
-        // 获取当前标签中的数据库表字段名称对应的java实体类中的字段名称.
+        // 获取当前标签中指定的java字段名称.
         final String property = resultMapping.getProperty();
         if (property != null) {
           resultMap.mappedProperties.add(property);

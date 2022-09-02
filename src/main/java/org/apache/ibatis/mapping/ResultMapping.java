@@ -40,6 +40,8 @@ public class ResultMapping {
   // 存储 解析当前字段的返回值时使用的处理程序对象.
   private TypeHandler<?> typeHandler;
   private String nestedResultMapId;
+  // 指定MapperStatement的Id(constructor, collection, discriminator标签中才可使用select属性,这个nestedQueryId才会有值).
+  // 在获取到当前sql结果后,根据结果中的某个字段去执行select指定的MapperStatement.
   private String nestedQueryId;
   private Set<String> notNullColumns;
   private String columnPrefix;

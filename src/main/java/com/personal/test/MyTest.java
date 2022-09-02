@@ -16,6 +16,7 @@
 package com.personal.test;
 
 import com.personal.bean.Emp;
+import com.personal.bean.SubEmp;
 import com.personal.dao.EmpDao;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,8 +50,44 @@ public class MyTest {
     }
 
     @Test
-    public void test01() {
+    public void constructResultMap() {
 
+      // 获取数据库的会话对象,它持有数据库连接对象,事务工厂,事务对象,执行器(调用插件的plugin()方法,可能会返回一个执行器对象).
+      SqlSession sqlSession = sqlSessionFactory.openSession();
+      SubEmp empByEmpno = null;
+      try {
+        // 通过要调用的接口类,去knowMapper集合中获取对应的MapperProxyFactory对象,并通过该对象来创建动态代理对象(mapperRegistry.knownMapper).
+        EmpDao mapper = sqlSession.getMapper(EmpDao.class);
+        // 调用代理方法开始执行.
+        empByEmpno = mapper.constructResultMapTest();
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        sqlSession.close();
+      }
+      System.out.println(empByEmpno);
+    }
+
+  @Test
+  public void associationResultMapTest() {
+    // 获取数据库的会话对象,它持有数据库连接对象,事务工厂,事务对象,执行器(调用插件的plugin()方法,可能会返回一个执行器对象).
+    SqlSession sqlSession = sqlSessionFactory.openSession();
+    SubEmp empByEmpno = null;
+    try {
+      // 通过要调用的接口类,去knowMapper集合中获取对应的MapperProxyFactory对象,并通过该对象来创建动态代理对象(mapperRegistry.knownMapper).
+      EmpDao mapper = sqlSession.getMapper(EmpDao.class);
+      // 调用代理方法开始执行.
+      empByEmpno = mapper.associationResultMapTest(7369);
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      sqlSession.close();
+    }
+    System.out.println(empByEmpno);
+  }
+
+    @Test
+    public void customTypeHandlerTest() {
         // 获取数据库的会话对象,它持有数据库连接对象,事务工厂,事务对象,执行器(调用插件的plugin()方法,可能会返回一个执行器对象).
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Emp empByEmpno = null;
@@ -58,7 +95,7 @@ public class MyTest {
             // 通过要调用的接口类,去knowMapper集合中获取对应的MapperProxyFactory对象,并通过该对象来创建动态代理对象(mapperRegistry.knownMapper).
             EmpDao mapper = sqlSession.getMapper(EmpDao.class);
             // 调用代理方法开始执行.
-            empByEmpno = mapper.findEmpByEmpno(7369);
+            empByEmpno = mapper.customTypeHandlerTest();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

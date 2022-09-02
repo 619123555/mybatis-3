@@ -28,6 +28,34 @@
     <result column="ename" jdbcType="VARCHAR" property="ename"/>
   </resultMap>
 
+  <resultMap id="constructTestResultMap" type="com.personal.bean.SubEmp" extends="BaseResultMap">
+    <constructor>
+      <idArg column="empno" jdbcType="INTEGER" />
+      <arg column="ename" jdbcType="VARCHAR" />
+      <arg column="job" jdbcType="VARCHAR" />
+      <arg name="map" column="empno" select="associationResultMapTest" />
+    </constructor>
+  </resultMap>
+  <select id="constructResultMapTest" resultMap="constructTestResultMap">
+    select * from emp
+  </select>
+
+  <resultMap id="associationTestResultMap" type="hashmap" extends="BaseResultMap">
+    <result column="job" jdbcType="VARCHAR" property="job" />
+    <association property="map" javaType="hashmap" column="empno" select="customTypeHandlerTest"/>
+  </resultMap>
+  <select id="associationResultMapTest" resultMap="associationTestResultMap">
+    select * from emp where empno = #{empno}
+  </select>
+
+  <resultMap id="customTypeHandlerTestResult" type="hashmap">
+    <result column="empno" jdbcType="INTEGER" property="empno"/>
+    <result column="ename" jdbcType="VARCHAR" property="ename" typeHandler="com.personal.test.SecurityCustomerTypeHandler"/>
+  </resultMap>
+  <select id="customTypeHandlerTest" resultMap="customTypeHandlerTestResult">
+    select empno, ename from emp
+  </select>
+
   <select id="findEmpByEmpno" resultType="com.personal.bean.Emp">
         select * from emp where empno = #{empno}
   </select>

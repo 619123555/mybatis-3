@@ -17,10 +17,16 @@ package com.personal.dao;
 
 
 import com.personal.bean.Emp;
+import com.personal.bean.SubEmp;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface EmpDao {
+
+
+    public SubEmp constructResultMapTest();
+    public SubEmp associationResultMapTest(Integer empno);
+    public Emp customTypeHandlerTest();
 
     public Emp findEmpByEmpno(Integer empno);
 

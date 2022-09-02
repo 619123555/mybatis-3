@@ -145,13 +145,14 @@ public class MapperAnnotationBuilder {
         // 校验是否包含Select,SelectProvider注解,同时不包含ResultMap注解.
         if (getAnnotationWrapper(method, false, Select.class, SelectProvider.class).isPresent()
             && method.getAnnotation(ResultMap.class) == null) {
+          // 解析Results,Result,TypeDiscriminator(鉴别器),Case注解.
           parseResultMap(method);
         }
         try {
-          // 解析每个方法中的注解,并创建MappedStatement对象.
+          // 解析SelectKey,ResultMap,Select,Update,Insert,Delete注解,并创建MappedStatement对象.
           parseStatement(method);
         } catch (IncompleteElementException e) {
-          // 出现异常的方法,添加到存储 未完成解析的Method 链表中.
+          // 由于当前NamespaceRef注解未完成解析,所以先添加到存储 未完成解析的Method链表中.
           configuration.addIncompleteMethod(new MethodResolver(this, method));
         }
       }
