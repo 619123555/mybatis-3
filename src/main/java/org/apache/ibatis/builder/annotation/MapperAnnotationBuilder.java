@@ -92,7 +92,9 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
  * mapper接口注解构建器.
- * 该类主要功能为解析Mapper接口中的注解,以及该Mapper对应的xml文件.
+ * 该类的功能为 制定整个mapper的构建逻辑.
+ *  1. mapper接口存在对应的xml时,通过XMLMapperBuilder对象解析xml文件.
+ *  2. mapper接口存在注解时,通过MapperBuilderAssistant对象构建该mapper各注解对应的对象,并添加到Configuration中.
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

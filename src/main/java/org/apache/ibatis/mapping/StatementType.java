@@ -20,7 +20,7 @@ package org.apache.ibatis.mapping;
  */
 public enum StatementType {
   // STATEMENT: 原生语句.
-  // PREPARED: 预处理语句.
-  // CALLABLE: 可执行语句.
+  // PREPARED: 预处理语句(可防止sql注入).
+  // CALLABLE: 可执行语句(存储过程).
   STATEMENT, PREPARED, CALLABLE
 }

@@ -136,7 +136,8 @@ public class XMLConfigBuilder extends BaseBuilder {
       //  package: 将包名下的所有普通类(排除内部类,接口,抽象类),及@Alias注解中定义的value属性或Class类名的小写名称作为别名,添加到类型别名注册器中.
       //  other: alias-type: 将指定的别名与类型,添加到类型别名注册器中,如果alias不存在,则由@Alias注解中定义的value属性或Class类名的简称作为别名.
       typeAliasesElement(root.evalNode("typeAliases"));
-      // 解析plugins标签,将每个plugin标签中定义的拦截器实例化,并添加到Configuration中的拦截器链对象中.
+      // 解析plugins标签(github分页器).
+      // 将每个plugin标签中定义的拦截器实例化,并添加到Configuration中的拦截器链对象中.
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));

@@ -53,6 +53,7 @@ public class MyTest {
     public void constructResultMap() {
 
       // 获取数据库的会话对象,它持有数据库连接对象,事务工厂,事务对象,执行器(调用插件的plugin()方法,可能会返回一个执行器对象).
+      // 这里只是创建对象,但没有与数据库进行连接.
       SqlSession sqlSession = sqlSessionFactory.openSession();
       SubEmp empByEmpno = null;
       try {

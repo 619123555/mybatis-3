@@ -116,7 +116,7 @@ public class XMLStatementBuilder extends BaseBuilder {
 
     // 将sql语句标签的内容解析成SqlSource对象,一般是DynamicSqlSource(sql文本中存在${}占位符或使用了动态sql相关标签),StaticSqlSource(存在#{}占位符).
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
-    // 获取当前标签用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认STATEMENT.
+    // 获取当前标签用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认Prepared(预处理语句,可防止sql注入).
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
     // 获取当前标签用户设置的每次批量返回的结果行数属性.
     Integer fetchSize = context.getIntAttribute("fetchSize");

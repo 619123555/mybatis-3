@@ -51,7 +51,7 @@ import org.apache.ibatis.type.TypeHandler;
 
 /**
  * 映射器构建助手,继承BaseBuilder(建造者(生成器)模式).
- * 传入mapper.xml配置中的参数,调用相应的方法,创建相应的对象.
+ * 传入mapper.xml或注解中配置中的参数,调用相应的方法,创建相应的对象,并添加到Configuration对应的集合中.
  * 例:Cache,ResultType,ResultMap,ParameterMap,MappedStatement等等对象.
  * @author Clinton Begin
  */
