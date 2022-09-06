@@ -29,6 +29,7 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 根据每个select,update等标签或@Select,@Update注解的配置创建的,不允许修改的MappedStatement对象.
  * @author Clinton Begin
  */
 public final class MappedStatement {
@@ -60,7 +61,10 @@ public final class MappedStatement {
   MappedStatement() {
     // constructor disabled
   }
-
+  // 因为MappedStatement对象,与用户在mapper.xml中声明的select标签或mapper接口中的@Select注解是一一相应的,所以生成后不允许修改.
+  //    从而通过final修饰类,default修饰构造函数,并且不提供set方法,来实现的不允许修改内部属性.
+  // 不使用default修饰构造函数,让用户直接new,也可以,但是参数列表过长,同时不安全,比如参数位置放错位置.
+  // 从而使用生成器模式,通过builder对象先收集参数,并校验参数逻辑,通过build方法构建一个完整的MappedStatement对象,并返回.
   public static class Builder {
     private MappedStatement mappedStatement = new MappedStatement();
 

@@ -18,6 +18,9 @@ package org.apache.ibatis.cache;
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
+ *
+ * 装饰器模式.
+ *
  * SPI for cache providers.
  * <p>
  * One instance of cache will be created for each namespace.

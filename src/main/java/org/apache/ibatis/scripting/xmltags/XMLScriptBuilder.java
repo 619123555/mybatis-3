@@ -30,8 +30,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * 解析select,update,insert,delete等标签.
- *
+ * 用来解析select,update,insert,delete等标签,并创建SqlSource对象的生成器.
  * @author Clinton Begin
  */
 public class XMLScriptBuilder extends BaseBuilder {
@@ -86,7 +85,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     // 获取当前标签的所有子节点.
     NodeList children = node.getNode().getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
-      // 创建XNode,该过程会将能解析掉的${}占位符都解析掉(尝试通过Configuration -> variables获取属性值).
+      // 创建XNode,该过程会将能解析掉的${}占位符都解析掉,包括标签body字符串中的${}占位符(尝试通过Configuration -> variables获取属性值).
       XNode child = node.newXNode(children.item(i));
       // 对CDATA和文本类型节点进行处理处理.
       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {

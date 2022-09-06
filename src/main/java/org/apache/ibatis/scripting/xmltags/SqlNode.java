@@ -16,6 +16,8 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
+ * 解释器模式.
+ * 由各个解释器对象去解析对应的标签.
  * @author Clinton Begin
  */
 public interface SqlNode {

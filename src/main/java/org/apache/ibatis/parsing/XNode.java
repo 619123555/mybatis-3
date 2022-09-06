@@ -46,7 +46,7 @@ public class XNode {
   private final XPathParser xpathParser;
 
   // 在构造时就把一些信息解析好,以便后续直接通过getter方法获取.
-  //  尝试将属性和body中的${}占位符,替换为Configuration -> variables集合中指定属性的value.
+  //  尝试将标签属性值和body字符串中的${}占位符,替换为Configuration -> variables集合中指定属性的value.
   //  如果替换失败则保持原样.
   public XNode(XPathParser xpathParser, Node node, Properties variables) {
     this.xpathParser = xpathParser;

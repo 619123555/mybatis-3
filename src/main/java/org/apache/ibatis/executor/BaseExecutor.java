@@ -45,6 +45,10 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * 执行器基类.
+ * 模板模式.
+ * 基于继承来实现代码复用,并可由子类定制特定步骤. BaseExecutor.query() -> SimpleExecutor.doQuery();
+ *
  * @author Clinton Begin
  */
 public abstract class BaseExecutor implements Executor {

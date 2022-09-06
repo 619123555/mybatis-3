@@ -27,6 +27,8 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
  * 创建SqlSession对象的工厂对象.
+ * 该类并不是标准的生成器模式中的builder对象,因为它构建的DefaultSqlSessionFactory对象并不复杂.
+ * 设计当前类的目的是,由于构建Configuration太过复杂,设计当前类将构建Configuration复杂的过程隐藏.
  *
  * Builds {@link SqlSession} instances.
  *
