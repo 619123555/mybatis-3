@@ -45,9 +45,17 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
- * 执行器基类.
+ * simple, reuse, batch执行器的基类.
  * 模板模式.
- * 基于继承来实现代码复用,并可由子类定制特定步骤. BaseExecutor.query() -> SimpleExecutor.doQuery();
+ * 基于继承来实现代码复用,并可由子类定制算法中的特定步骤.
+ *
+ * 抽象类中制定模板方法的整体逻辑,并在模板方法中,调用待子类实现的抽象方法(BaseExecutor.query() 中会调用 abstract doQuery()).
+ * 子类实现父类的抽象方法,来定制模板方法中的特定步骤逻辑. abstract doQuery().
+ *    query(): 模板方法.
+ *    doQuery(): 抽象方法,抽象方法命名由do开头 + 模板方法名.
+ *
+ * 装饰器模式.
+ *  CacheExecutor对SimpleExecutor进行包装,实现的缓存功能.
  *
  * @author Clinton Begin
  */
@@ -55,13 +63,17 @@ public abstract class BaseExecutor implements Executor {
 
   private static final Log log = LogFactory.getLog(BaseExecutor.class);
 
+  // 事务对象.
   protected Transaction transaction;
+  // 存储当前实例被哪个实例封装的实例对象(CacheExecutor).
+  // CacheExecutor(SimpleExecutor -> BaseExecutor(this.实例));
   protected Executor wrapper;
 
+  // 延迟加载队列????.
   protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
-  // 存储一级缓存内容.
+  // 存储会话级缓存,并使用PerpetualCache基础缓存对象来进行缓存.
   protected PerpetualCache localCache;
-  // 存储 输出类型 参数的值.
+  // 存储 输出类型(sql中的输出参数) 参数的值.
   protected PerpetualCache localOutputParameterCache;
   protected Configuration configuration;
 

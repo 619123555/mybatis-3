@@ -18,6 +18,13 @@ package org.apache.ibatis.reflection.property;
 import java.util.Iterator;
 
 /**
+ * 迭代遍历属性名.
+ *
+ * 非标准迭代器模式.
+ *  迭代器模式常用来替代for循环遍历集合元素,
+ * 作者将配置的解析,解析之后的元素,迭代器,这三部分本该放到三个类中的代码,都耦合在一个类中,所以是非标准迭代器模式.
+ * 这样做的好处是能做到 惰性解析,不需要将实现将属性名全部解析完成,而是每次调用next时,解析下一个属性名.
+ *
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
@@ -27,6 +34,7 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
   private final String children;
 
   public PropertyTokenizer(String fullname) {
+    // teacher.age
     int delim = fullname.indexOf('.');
     if (delim > -1) {
       name = fullname.substring(0, delim);

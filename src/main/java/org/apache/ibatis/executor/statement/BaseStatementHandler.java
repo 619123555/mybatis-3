@@ -66,9 +66,9 @@ public abstract class BaseStatementHandler implements StatementHandler {
 
     this.boundSql = boundSql;
 
-    // 创建参数处理器对象,并调用插件拦截器链中的pluginAll()方法.
+    // 创建参数处理器对象,并调用插件拦截器链中的pluginAll()方法,通过动态代理进行功能增强.
     this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
-    // 创建结果集处理器对象,并调用插件拦截器链中的pluginAll()方法.
+    // 创建结果集处理器对象,并调用插件拦截器链中的pluginAll()方法,通过动态代理进行功能增强.
     this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, parameterHandler, resultHandler, boundSql);
   }
 

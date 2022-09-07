@@ -23,8 +23,11 @@ import org.apache.ibatis.cache.CacheException;
 
 /**
  *
- * 永久缓存
- * 一旦存入就一直保持
+ * 永久缓存,一旦存入就一直保存.
+ * 基础缓存类,其他缓存实现类都是基于包装PerpetualCache来实现的缓存功能增强(装饰器模式).
+ *
+ * 注: 该对象重写了hashCode(), equals()方法.
+ *
  *
  * @author Clinton Begin
  */

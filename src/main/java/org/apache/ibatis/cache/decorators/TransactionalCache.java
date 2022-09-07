@@ -41,6 +41,7 @@ public class TransactionalCache implements Cache {
 
   private final Cache delegate;
   private boolean clearOnCommit;
+  // CacheKey对象为key,返回值为value.
   private final Map<Object, Object> entriesToAddOnCommit;
   private final Set<Object> entriesMissedInCache;
 

@@ -34,6 +34,8 @@ import org.apache.ibatis.transaction.TransactionException;
  *
  * @author Clinton Begin
  *
+ * 提供创建/关闭连接, 提交/回滚事务等操作.
+ *
  * @see JdbcTransactionFactory
  */
 public class JdbcTransaction implements Transaction {

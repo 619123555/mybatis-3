@@ -20,6 +20,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.personal.dao.EmpDao">
+  <cache/>
   <resultMap id="BaseResultMap" type="com.personal.bean.Emp">
     <!--
       WARNING - @mbg.generated
@@ -29,12 +30,12 @@
   </resultMap>
 
   <resultMap id="constructTestResultMap" type="com.personal.bean.SubEmp" extends="BaseResultMap">
-    <constructor>
-      <idArg column="empno" jdbcType="INTEGER" />
-      <arg column="ename" jdbcType="VARCHAR" />
-      <arg column="job" jdbcType="VARCHAR" />
-      <arg name="map" column="empno" select="associationResultMapTest" />
-    </constructor>
+<!--    <constructor>-->
+<!--      <idArg column="empno" jdbcType="INTEGER" />-->
+<!--      <arg column="ename" jdbcType="VARCHAR" />-->
+<!--      <arg column="job" jdbcType="VARCHAR" />-->
+<!--      <arg name="map" column="empno" select="associationResultMapTest" />-->
+<!--    </constructor>-->
   </resultMap>
   <select id="constructResultMapTest" resultMap="constructTestResultMap">
     select * from emp

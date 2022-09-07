@@ -96,7 +96,9 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
       // 通过事务工厂创建一个事务对象.
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
-      // 根据执行器类型来创建一个对应的执行器对象(这里会创建一个CachingExecutor对原本匹配到的执行器进行封装,并且会执行所有拦截器的plugin()方法).
+      // 根据执行器类型来创建一个对应的执行器对象.
+      // 这里会创建一个CachingExecutor对原本匹配到的执行器进行包装,来增强实现缓存功能,
+      // 并且会执行所有拦截器的plugin()方法,同时也可能通过动态代理进行增强,并返回代理对象.
       final Executor executor = configuration.newExecutor(tx, execType);
       // 创建一个数据库默认会话对象.
       return new DefaultSqlSession(configuration, executor, autoCommit);

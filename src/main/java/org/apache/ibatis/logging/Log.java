@@ -16,6 +16,13 @@
 package org.apache.ibatis.logging;
 
 /**
+ * 统一日志接口(与slf4j框架统一各个不同的日志框架,提供一套统一的日志接口的性质一样).
+ *
+ * mybatis没有使用slf4j提供的统一日志规范,自己重新定义了一套接口.
+ *
+ * 非标准适配器模式.
+ *  通过构造函数将被适配对象传进来,并通过统一的日志接口,调用被适配对象相应的方法.
+ *
  * @author Clinton Begin
  */
 public interface Log {

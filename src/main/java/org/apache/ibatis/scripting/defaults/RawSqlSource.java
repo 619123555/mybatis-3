@@ -36,7 +36,7 @@ import org.apache.ibatis.session.Configuration;
  */
 public class RawSqlSource implements SqlSource {
 
-  // StaticSqlSource对象.
+  // StaticSqlSource对象,存储了sql字符串.
   private final SqlSource sqlSource;
 
   public RawSqlSource(Configuration configuration, SqlNode rootSqlNode, Class<?> parameterType) {

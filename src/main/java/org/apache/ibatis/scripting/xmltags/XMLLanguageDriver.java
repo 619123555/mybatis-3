@@ -29,7 +29,7 @@ import org.apache.ibatis.scripting.defaults.RawSqlSource;
 import org.apache.ibatis.session.Configuration;
 
 /**
- * XML语言驱动,用来控制解析select,update,insert,delete等标签的总体流程.
+ * XML语言驱动,用来控制解析select,update,insert,delete等标签的总体流程,以及创建DefaultParameterHandler参数处理程序对象.
  *
  * @author Eduardo Macarron
  */

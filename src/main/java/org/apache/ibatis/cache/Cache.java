@@ -18,9 +18,6 @@ package org.apache.ibatis.cache;
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
- *
- * 装饰器模式.
- *
  * SPI for cache providers.
  * <p>
  * One instance of cache will be created for each namespace.
@@ -38,6 +35,12 @@ import java.util.concurrent.locks.ReadWriteLock;
  *   initialize();
  * }
  * </pre>
+ *
+ *
+ * 装饰器模式(采用了组合,而非继承,更加灵活,能够有效地避免继承关系的组合爆炸.).
+ * PerpetualCache为所有缓存的基础类,其他缓存实现类都是基于包装PerpetualCache来实现的缓存功能增强.
+ *
+ * 注: 该对象的实体类重写了hashCode(), equals()方法.
  *
  * @author Clinton Begin
  */

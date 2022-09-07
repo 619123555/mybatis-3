@@ -33,6 +33,9 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ *
+ * 猜测是装饰器模式,对原始SimpleExecutor进行包装来增加缓存功能.
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -110,7 +113,7 @@ public class CachingExecutor implements Executor {
         if (list == null) {
           // 二级缓存没有找到,则调用封装的Executor对象的query方法.
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
-          // 将查询结果保存到TransactionalCache.entriesToAddOnCommit集合中.
+          // 将查询结果保存到二级缓存的集合中.
           tcm.putObject(cache, key, list); // issue #578 and #116
         }
         return list;

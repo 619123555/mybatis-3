@@ -711,6 +711,7 @@ public class Configuration {
 
   public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+    // 调用拦截器链,如果匹配拦截规则,则对参数处理程序对象进行增强,并返回动态代理对象实例.
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
     return parameterHandler;
   }
@@ -718,6 +719,7 @@ public class Configuration {
   public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
     ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+    // 调用拦截器链,如果匹配拦截规则,则对resultSetHandler对象进行增强,并返回动态代理对象实例.
     resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
     return resultSetHandler;
   }
@@ -725,7 +727,7 @@ public class Configuration {
   public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     // 创建路由语句处理器.
     StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
-    // 调用插件拦截器链中的pluginAll()方法.
+    // 调用插件拦截器链中的pluginAll()方法,通过动态代理进行功能增强,并返回动态代理对象实例.
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
   }
@@ -746,11 +748,11 @@ public class Configuration {
     } else {
       executor = new SimpleExecutor(this, transaction);
     }
-    // 如果开启了全局缓存开关(二级缓存),则创建CachingExecutor对象,并将获取到的执行器对象,通过构造参数传进去.
+    // 如果开启了全局缓存开关(二级缓存),则创建CachingExecutor对象,对原始执行器进行增强,从而实现缓存功能.
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
-    // 遍历所有拦截器,并调用每个拦截器的plugin方法.
+    // 调用拦截器链,并调用每个拦截器的plugin方法,对符合拦截规则的对象,通过动态代理进行功能增强.
     executor = (Executor) interceptorChain.pluginAll(executor);
     return executor;
   }

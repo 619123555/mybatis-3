@@ -44,8 +44,10 @@ public class Plugin implements InvocationHandler {
   public static Object wrap(Object target, Interceptor interceptor) {
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
     Class<?> type = target.getClass();
+    // 筛选满足拦截规则的接口.
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
+      // 满足拦截规则,则创建动态代理对象与拦截器.
       return Proxy.newProxyInstance(
           type.getClassLoader(),
           interfaces,
