@@ -55,6 +55,8 @@ public class TransactionalCacheManager {
   }
 
   private TransactionalCache getTransactionalCache(Cache cache) {
+    // 如果transactionalCaches集合中,
+    // 以cache对象为key的TransactionalCache对象不存在,则创建一个TransactionalCache对象,并添加到TransactionalCaches中.
     return MapUtil.computeIfAbsent(transactionalCaches, cache, TransactionalCache::new);
   }
 

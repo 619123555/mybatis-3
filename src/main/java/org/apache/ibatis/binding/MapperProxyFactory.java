@@ -56,6 +56,7 @@ public class MapperProxyFactory<T> {
   public T newInstance(SqlSession sqlSession) {
     // 创建MapperProxy(用户定义的mapper接口的代理对象,该代理对象实现了InvocationHandler接口),每次调用都会创建新的mapperProxy对象.
     final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface, methodCache);
+    // 最终返回的是MapperProxy对象.
     return newInstance(mapperProxy);
   }
 
