@@ -52,7 +52,13 @@ public class MapperMethod {
   private final MethodSignature method;
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
+    // 获取sql类型.
     this.command = new SqlCommand(config, mapperInterface, method);
+    // 解析方法签名中的信息.
+    //    比如解析返回值类型.
+    //    是否为数组类型返回值.
+    //    是否在方法参数中指定了ResultHandler,RowBounds对象.
+    //    创建参数解析器对象.
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
@@ -331,7 +337,9 @@ public class MapperMethod {
       this.mapKey = getMapKey(method);
       // 设置方法返回值是否为Map类型.
       this.returnsMap = this.mapKey != null;
+      // 尝试在方法参数中获取RowBounds类型的实例对象.
       this.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);
+      // 尝试在方法参数中获取ResultHandler类型的实例对象.
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
       // 创建参数名称解析器对象,并解析方法参数中各个参数的索引下标与参数名称的对应关系.
       this.paramNameResolver = new ParamNameResolver(configuration, method);

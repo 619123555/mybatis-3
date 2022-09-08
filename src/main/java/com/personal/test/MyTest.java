@@ -60,6 +60,8 @@ public class MyTest {
         EmpDao mapper = sqlSession.getMapper(EmpDao.class);
         // 调用代理方法开始执行.
         empByEmpno = mapper.constructResultMapTest();
+        empByEmpno = mapper.constructResultMapTest();
+        empByEmpno = mapper.constructResultMapTest();
       } catch (Exception e) {
         e.printStackTrace();
       } finally {
