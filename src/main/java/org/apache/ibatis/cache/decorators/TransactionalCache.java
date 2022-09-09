@@ -80,6 +80,7 @@ public class TransactionalCache implements Cache {
 
   @Override
   public void putObject(Object key, Object object) {
+    // 先添加到集合中,等事务提交或会话关闭时,再将key与value添加到缓存中.
     entriesToAddOnCommit.put(key, object);
   }
 
@@ -98,12 +99,16 @@ public class TransactionalCache implements Cache {
     if (clearOnCommit) {
       delegate.clear();
     }
+    // 将当前事务中执行的sql结果,刷新到缓存中.
     flushPendingEntries();
+    // 清空当前事务中待处理的 sql执行结果 集合.
     reset();
   }
 
   public void rollback() {
+    // 将尝试过 获取缓存的key,从基础缓存中删除(可能本身在基础缓存中不存在,但是 内层的Cache增强对象有过处理).
     unlockMissedEntries();
+    // 清空当前事务中待处理的 sql执行结果 集合.
     reset();
   }
 
@@ -114,9 +119,12 @@ public class TransactionalCache implements Cache {
   }
 
   private void flushPendingEntries() {
+    // 事务提交时,将已找到结果的key,添加到缓存中.
     for (Map.Entry<Object, Object> entry : entriesToAddOnCommit.entrySet()) {
       delegate.putObject(entry.getKey(), entry.getValue());
     }
+    // 未找到缓存结果的key,如果在事务提交或会话关闭时,也未添加到已找到结果的集合中,说明sql执行结果为null.
+    // 所以将value为null的key,添加到缓存中.
     for (Object entry : entriesMissedInCache) {
       if (!entriesToAddOnCommit.containsKey(entry)) {
         delegate.putObject(entry, null);

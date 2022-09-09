@@ -54,11 +54,11 @@ public class MapperMethod {
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
     // 获取sql类型.
     this.command = new SqlCommand(config, mapperInterface, method);
-    // 解析方法签名中的信息.
+    // 解析方法签名中的信息,后边在execute()执行时会使用.
     //    比如解析返回值类型.
     //    是否为数组类型返回值.
     //    是否在方法参数中指定了ResultHandler,RowBounds对象.
-    //    创建参数解析器对象.
+    //    创建参数解析器对象,并将方法的参数索引下标与参数名称的对应关系解析完成.
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
@@ -101,6 +101,7 @@ public class MapperMethod {
           result = executeForCursor(sqlSession, args);
         } else {
           // 处理返回值为单一对象的方法.
+          // 通过参数名称解析器,获取以参数名称为key,值为value的Map集合.
           Object param = method.convertArgsToSqlCommandParam(args);
           result = sqlSession.selectOne(command.getName(), param);
           if (method.returnsOptional()

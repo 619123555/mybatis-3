@@ -65,7 +65,7 @@ public abstract class BaseExecutor implements Executor {
 
   // 事务对象.
   protected Transaction transaction;
-  // 存储当前实例被哪个实例封装的实例对象(CacheExecutor).
+  // 存储当前实例是被哪个实例包装的实例对象(CacheExecutor).
   // CacheExecutor(SimpleExecutor -> BaseExecutor(this.实例));
   protected Executor wrapper;
 
@@ -276,6 +276,7 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Cannot commit, transaction is already closed");
     }
+    // 清空会话级缓存.
     clearLocalCache();
     flushStatements();
     if (required) {
@@ -365,7 +366,7 @@ public abstract class BaseExecutor implements Executor {
       // 完成数据库查询操作,并返回结果对象.
       list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
     } finally {
-      // 删除缓存中的占位符.
+      // 删除一级缓存中的占位符.
       localCache.removeObject(key);
     }
     // 将真正的结果对象添加到一级缓存中.
@@ -379,8 +380,11 @@ public abstract class BaseExecutor implements Executor {
   }
 
   protected Connection getConnection(Log statementLog) throws SQLException {
+    // 获取数据库连接.
+    // 使用连接池中空闲的连接 或 创建新的数据库连接,并返回该连接对象.
     Connection connection = transaction.getConnection();
     if (statementLog.isDebugEnabled()) {
+      // 创建ConnectionLogger代理对象,对Connection对象进行增强.
       return ConnectionLogger.newInstance(connection, statementLog, queryStack);
     } else {
       return connection;

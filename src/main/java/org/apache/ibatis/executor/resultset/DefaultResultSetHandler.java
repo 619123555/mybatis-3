@@ -185,6 +185,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     final List<Object> multipleResults = new ArrayList<>();
 
     int resultSetCount = 0;
+    // 获取封装了返回sql结果的ResultSetWrapper对象.
     ResultSetWrapper rsw = getFirstResultSet(stmt);
 
     List<ResultMap> resultMaps = mappedStatement.getResultMaps();
@@ -192,6 +193,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     validateResultMapsCount(rsw, resultMapCount);
     while (rsw != null && resultMapCount > resultSetCount) {
       ResultMap resultMap = resultMaps.get(resultSetCount);
+      // 处理结果集映射,从返回结果数组中,一个一个的将参数转为ResultMap标签指定的java类型.
       handleResultSet(rsw, resultMap, multipleResults, null);
       rsw = getNextResultSet(stmt);
       cleanUpAfterHandlingResultSet();

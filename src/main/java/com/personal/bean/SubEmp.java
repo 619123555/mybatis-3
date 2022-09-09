@@ -16,9 +16,10 @@
 package com.personal.bean;
 
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class SubEmp {
+public class SubEmp implements Serializable {
 
     private Integer empno;
     private String ename;

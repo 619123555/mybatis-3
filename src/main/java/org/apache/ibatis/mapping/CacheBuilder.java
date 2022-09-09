@@ -45,6 +45,7 @@ public class CacheBuilder {
   private final List<Class<? extends Cache>> decorators;
   private Integer size;
   private Long clearInterval;
+  // 是否为只读模式,只读为 false,读写为 true.
   private boolean readWrite;
   private Properties properties;
   private boolean blocking;
@@ -99,12 +100,12 @@ public class CacheBuilder {
     // 根据cache节点下配置的property信息,初始化cache对象.
     setCacheProperties(cache);
     // issue #352, do not apply decorators to custom caches
-    // 如果cache是PerpetualCache类型,则为其添加decorators集合中的装饰器.
+    // 如果cache是PerpetualCache类型,则为其添加decorators集合中的装饰器进行缓存功能增强.
     if (PerpetualCache.class.equals(cache.getClass())) {
       for (Class<? extends Cache> decorator : decorators) {
         // 通过反射获取参数为cache类型的构造方法,并通过该构造方法创建装饰器.
         cache = newCacheDecoratorInstance(decorator, cache);
-        // 配置cache对象的属性.
+        // 配置增强后的cache对象的属性.
         setCacheProperties(cache);
       }
       // 添加mybatis中提供的标准装饰器.
@@ -113,6 +114,7 @@ public class CacheBuilder {
       // 如果不是LoggingCache的子类,则添加loggingCache装饰器.
       cache = new LoggingCache(cache);
     }
+    // 在上边的过程中,原本创建的PerpetualCache实例,已经变成了其他增强后的Cache实例.
     return cache;
   }
 
@@ -132,17 +134,23 @@ public class CacheBuilder {
         metaCache.setValue("size", size);
       }
       if (clearInterval != null) {
+        // 如果配置了缓存清理周期,则对Cache进行增强,增加缓存有效期功能.
         cache = new ScheduledCache(cache);
         ((ScheduledCache) cache).setClearInterval(clearInterval);
       }
       if (readWrite) {
+        // 非只读模式,则对Cache进行增强,增加序列化功能.
         cache = new SerializedCache(cache);
       }
+      // 对Cache的日志功能进行增强.
       cache = new LoggingCache(cache);
+      // 对Cache的方法增加synchronized关键字.
       cache = new SynchronizedCache(cache);
       if (blocking) {
+        // 对Cache增加同步锁.
         cache = new BlockingCache(cache);
       }
+      // 返回SynchronizedCache或BlockingCache.
       return cache;
     } catch (Exception e) {
       throw new CacheException("Error building standard cache decorators.  Cause: " + e, e);

@@ -38,8 +38,6 @@ public class ParamNameResolver {
   private final boolean useActualParamName;
 
   /**
-   * 存储方法参数索引下标与参数名称的对应关系.
-   *
    * <p>
    * The key is the index and the value is the name of the parameter.<br />
    * The name is obtained from {@link Param} if specified. When {@link Param} is not specified,
@@ -51,6 +49,8 @@ public class ParamNameResolver {
    * <li>aMethod(int a, int b) -&gt; {{0, "0"}, {1, "1"}}</li>
    * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
    * </ul>
+   *
+   * 存储mapper方法参数索引下标与参数名称的对应关系.
    */
   private final SortedMap<Integer, String> names;
 
@@ -63,7 +63,7 @@ public class ParamNameResolver {
     final Class<?>[] paramTypes = method.getParameterTypes();
     // 获取参数列表上的注解.
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
-    // 存储方法参数索引下表与参数名称的对应关系.
+    // 存储mapper中方法参数索引下标与参数名称的对应关系.
     final SortedMap<Integer, String> map = new TreeMap<>();
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
@@ -71,11 +71,11 @@ public class ParamNameResolver {
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
       if (isSpecialParameter(paramTypes[paramIndex])) {
         // skip special parameters
-        // 如果参数是RowBounds类型或ResultHandler类型,则跳过对该参数的分析.
+        // 如果参数是RowBounds类型或ResultHandler类型,属于特殊参数,要跳过对该参数的解析.
         continue;
       }
       String name = null;
-      // 遍历该参数对应的注解集合.
+      // 遍历该参数对应的注解集合,一个参数可能有多个注解,所以需要遍历,并找到@Param注解.
       for (Annotation annotation : paramAnnotations[paramIndex]) {
         if (annotation instanceof Param) {
           // @Param注解出现过一次,就将hasParamAnnotation初始化为true.
@@ -89,6 +89,7 @@ public class ParamNameResolver {
         // @Param was not specified.
         // 该参数没有对应的@Param注解,则根据配置决定是否使用参数实际名称作为其名称.
         if (useActualParamName) {
+          // 根据索引下标,获取用户定义的参数名称.
           name = getActualParamName(method, paramIndex);
         }
         if (name == null) {
@@ -145,11 +146,11 @@ public class ParamNameResolver {
       // 如果参数是数组或集合类型,则转换为map对象.
       return wrapToMapIfCollection(value, useActualParamName ? names.get(0) : null);
     } else {
-      // param这个map记录了参数名称与实参之间的对应关系,ParamMap继承了HashMap,如果向paramMap中添加已经存在的key,会报错.
+      // param这个map记录了参数名称与参数值的对应关系,ParamMap继承了HashMap,如果向paramMap中添加已经存在的key,会报错.
       final Map<String, Object> param = new ParamMap<>();
       int i = 0;
       for (Map.Entry<Integer, String> entry : names.entrySet()) {
-        // 将参数名称与实参对应关系记录到param中.
+        // 将参数名称与参数值的对应关系记录到param中.
         param.put(entry.getValue(), args[entry.getKey()]);
         // add generic param names (param1, param2, ...)
         // 为参数创建param+索引格式的默认参数名称,并添加到param集合中.

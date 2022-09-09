@@ -35,6 +35,7 @@ public class LruCache implements Cache {
 
   public LruCache(Cache delegate) {
     this.delegate = delegate;
+    // size默认1024,可通过配置定制.
     setSize(1024);
   }
 

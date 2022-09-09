@@ -322,6 +322,7 @@ public class DefaultSqlSession implements SqlSession {
   }
 
   private Object wrapCollection(final Object object) {
+    // 参数为数组或Collection类型时,将他们转为map,后续替换到sql中时,会通过key,value的形式获取参数.
     return ParamNameResolver.wrapToMapIfCollection(object, null);
   }
 

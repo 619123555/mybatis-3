@@ -257,7 +257,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       Long flushInterval = context.getLongAttribute("flushInterval");
       // 获取size属性,默认值是null(无限制).
       Integer size = context.getIntAttribute("size");
-      // 获取readonly属性,默认false.
+      // 获取readOnly属性,默认false.
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
       // 获取blocking属性,默认false.
       boolean blocking = context.getBooleanAttribute("blocking", false);

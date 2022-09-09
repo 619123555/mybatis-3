@@ -113,7 +113,7 @@ public class CachingExecutor implements Executor {
         if (list == null) {
           // 二级缓存没有找到,则调用封装的Executor对象的query方法.
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
-          // 将查询结果保存到二级缓存的集合中.
+          // 将查询结果先存储到TransactionalCache中未处理的缓存结果集合中,待事务提交时,才添加到二级缓存中.
           tcm.putObject(cache, key, list); // issue #578 and #116
         }
         return list;
@@ -130,6 +130,7 @@ public class CachingExecutor implements Executor {
   @Override
   public void commit(boolean required) throws SQLException {
     delegate.commit(required);
+    // 告诉事务缓存管理器当前事务已提交,可以将事务中的sql结果,刷新到二级缓存中了.
     tcm.commit();
   }
 

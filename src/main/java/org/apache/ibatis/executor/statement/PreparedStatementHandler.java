@@ -34,7 +34,10 @@ import org.apache.ibatis.session.RowBounds;
 
 /**
  * 预处理语句处理器(PREPARED).
- *
+ * 处理参数.
+ *    调用parameterHandler,将之前解析到的参数映射关系列表,设置到sql字符串中.
+ * 处理返回值.
+ *    调用ResultSetHandler,将返回结果转换为java类型.
  * @author Clinton Begin
  */
 public class PreparedStatementHandler extends BaseStatementHandler {
@@ -100,6 +103,8 @@ public class PreparedStatementHandler extends BaseStatementHandler {
 
   @Override
   public void parameterize(Statement statement) throws SQLException {
+    // 调用父类的parameterHandler(DefaultParameterHandler)中的setParameters().
+    // 遍历参数映射关系列表,并通过类型处理程序,对参数进行java类型 -> jdbc类型的转换,并设置到sql中.
     parameterHandler.setParameters((PreparedStatement) statement);
   }
 
