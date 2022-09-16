@@ -20,6 +20,7 @@ import com.personal.bean.SubEmp;
 import com.personal.dao.EmpDao;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -72,7 +73,7 @@ public class MyTest {
   public void associationResultMapTest() {
     // 获取数据库的会话对象,它持有数据库连接对象,事务工厂,事务对象,执行器(调用插件的plugin()方法,可能会返回一个执行器对象).
     SqlSession sqlSession = sqlSessionFactory.openSession();
-    SubEmp empByEmpno = null;
+    Map<String, Object> empByEmpno = null;
     try {
       // 通过要调用的接口类,去knowMapper集合中获取对应的MapperProxyFactory对象,并通过该对象来创建动态代理对象(mapperRegistry.knownMapper).
       EmpDao mapper = sqlSession.getMapper(EmpDao.class);

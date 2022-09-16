@@ -43,10 +43,13 @@
 
   <resultMap id="associationTestResultMap" type="hashmap" extends="BaseResultMap">
     <result column="job" jdbcType="VARCHAR" property="job" />
-    <association property="map" javaType="hashmap" column="empno" select="customTypeHandlerTest"/>
+<!--    <association property="map" javaType="hashmap" column="empno" select="customTypeHandlerTest"/>-->
   </resultMap>
   <select id="associationResultMapTest" resultMap="associationTestResultMap">
-    select * from emp where empno = #{empno}
+    select * from emp
+    <if test="empno != null">
+      where empno = #{empno}
+    </if>
   </select>
 
   <resultMap id="customTypeHandlerTestResult" type="hashmap">

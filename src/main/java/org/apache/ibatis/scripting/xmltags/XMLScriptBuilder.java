@@ -67,7 +67,7 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
   public SqlSource parseScriptNode() {
-    // 判断当前的节点是否属于动态sql(经过XNode构造方法解析${}占位符后,还存在${}占位符的文本 或 包含动态sql相关子标签的(<where>, <foreach>)).
+    // 判断当前的节点是否属于动态sql(经过XNode构造方法解析${}占位符后,还存在${}占位符的文本 或 包含动态sql相关子标签的(<if>, <where>, <foreach>)).
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
     SqlSource sqlSource;
     // 根据是否为动态sql,来选择对应的SqlSource对象.
@@ -101,7 +101,7 @@ public class XMLScriptBuilder extends BaseBuilder {
           contents.add(new StaticTextSqlNode(data));
         }
       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628
-        // 如果子节点是一个标签,那么一定是动态SQL,并且根据不同的动态标签生成不同的NodeHandler.
+        // 如果子节点是一个标签(<if>, <where>),那么一定是动态SQL,并且根据不同的动态标签生成不同的NodeHandler.
         String nodeName = child.getNode().getNodeName();
         // 根据子标签名称获取对应的节点处理程序对象,并由该对象来解析该节点信息(<where>, <trim>, <foreach>).
         NodeHandler handler = nodeHandlerMap.get(nodeName);

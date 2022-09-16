@@ -108,7 +108,7 @@ public class CacheBuilder {
         // 配置增强后的cache对象的属性.
         setCacheProperties(cache);
       }
-      // 添加mybatis中提供的标准装饰器.
+      // 添加mybatis中提供的几个缓存标准装饰器(定时调度,序列化,日志,阻塞等).
       cache = setStandardDecorators(cache);
     } else if (!LoggingCache.class.isAssignableFrom(cache.getClass())) {
       // 如果不是LoggingCache的子类,则添加loggingCache装饰器.

@@ -32,7 +32,7 @@ public class MapperProxyFactory<T> {
 
   // 用户定义的mapper接口的Class对象.
   private final Class<T> mapperInterface;
-  // 方法缓存集合.
+  // mapper各个方法缓存集合.
   private final Map<Method, MapperMethodInvoker> methodCache = new ConcurrentHashMap<>();
 
   public MapperProxyFactory(Class<T> mapperInterface) {
