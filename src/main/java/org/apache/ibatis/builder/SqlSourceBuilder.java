@@ -102,7 +102,7 @@ public class SqlSourceBuilder extends BaseBuilder {
     private ParameterMapping buildParameterMapping(String content) {
       // 解析参数的属性,并形成map对象.
       Map<String, String> propertiesMap = parseParameterMapping(content);
-      // 获取参数名称.
+      // 获取sql参数名称.
       String property = propertiesMap.get("property");
       Class<?> propertyType;
       // 确定参数的javaType属性.
@@ -122,7 +122,7 @@ public class SqlSourceBuilder extends BaseBuilder {
           propertyType = Object.class;
         }
       }
-      // 创建ParameterMapping的构造者,并设置ParameterMapping的相关配置.
+      // 创建ParameterMapping的生成器,并设置ParameterMapping的相关配置.
       ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
       Class<?> javaType = propertyType;
       String typeHandlerAlias = null;

@@ -21,12 +21,13 @@ import com.personal.bean.SubEmp;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 public interface EmpDao {
 
 
     public SubEmp constructResultMapTest();
-    public Map<String, Object> associationResultMapTest(Integer empno);
+    public Map<String, Object> associationResultMapTest(RowBounds rb, Integer empno, String ename);
     public Emp customTypeHandlerTest();
 
     public Emp findEmpByEmpno(Integer empno);
@@ -40,4 +41,6 @@ public interface EmpDao {
     public int update(Emp emp);
 
     public int delete(Integer empno);
+
+    List<Emp> selectByStartingWithName(RowBounds rb, List<String> nameList);
 }

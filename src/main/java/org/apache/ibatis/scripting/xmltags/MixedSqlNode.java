@@ -19,11 +19,14 @@ import java.util.List;
 
 /**
  * 混合SQL节点.
+ * 以有序链表形式存储select,update等标签,以及if, where, trim等子标签对应的SqlNode对象.
+ * 并在apply方法中,遍历有序链表,来调用各个SqlNode解释器.
+ * 将各标签对应的解释器解析后的sql段,追加到传入的DynamicContext对象中维护的StringJoiner中.
  *
  * @author Clinton Begin
  */
 public class MixedSqlNode implements SqlNode {
-  // 组合模式,拥有一个SqlNode的List.
+  // 以有序链表形式存储select,update等标签,以及if, where, trim等子标签对应的SqlNode对象.
   private final List<SqlNode> contents;
 
   public MixedSqlNode(List<SqlNode> contents) {
@@ -32,7 +35,7 @@ public class MixedSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
-    // 依次调用list里每个元素的apply()方法.
+    // 将各标签对应的解释器解析后的sql段,追加到传入的DynamicContext对象中维护的StringJoiner中.
     contents.forEach(node -> node.apply(context));
     return true;
   }

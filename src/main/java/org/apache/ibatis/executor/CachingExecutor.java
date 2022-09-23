@@ -87,7 +87,7 @@ public class CachingExecutor implements Executor {
 
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
-    // 获取BoundSql对象.
+    // 获取BoundSql对象,同时将sql中的#{}占位符改为 ? 符号,并解析每个#{}中指定的参数名的相关信息(jdbcType, javaType, TypeHandler).
     BoundSql boundSql = ms.getBoundSql(parameterObject);
     // 创建二级缓存中的CacheKey对象,该对象重写了equals()和hashCode()方法,后续通过该对象作为key来增删缓存.
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);

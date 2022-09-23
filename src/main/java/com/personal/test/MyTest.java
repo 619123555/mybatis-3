@@ -20,8 +20,11 @@ import com.personal.bean.SubEmp;
 import com.personal.dao.EmpDao;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -77,8 +80,9 @@ public class MyTest {
     try {
       // 通过要调用的接口类,去knowMapper集合中获取对应的MapperProxyFactory对象,并通过该对象来创建动态代理对象(mapperRegistry.knownMapper).
       EmpDao mapper = sqlSession.getMapper(EmpDao.class);
+      RowBounds rb = new RowBounds(1, 10);
       // 调用代理方法开始执行.
-      empByEmpno = mapper.associationResultMapTest(7369);
+      empByEmpno = mapper.associationResultMapTest(rb, 7369, "sfdsfs");
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
@@ -159,7 +163,10 @@ public class MyTest {
   public void test05(){
     SqlSession sqlSession = sqlSessionFactory.openSession();
     EmpDao mapper = sqlSession.getMapper(EmpDao.class);
-    int zhangsan = mapper.delete(1111);
+    RowBounds rb = new RowBounds(1, 10);
+    List<String> list = new ArrayList<>();
+    list.add("23432");
+    List<Emp> zhangsan = mapper.selectByStartingWithName(rb, list);
     System.out.println(zhangsan);
     sqlSession.commit();
     sqlSession.close();

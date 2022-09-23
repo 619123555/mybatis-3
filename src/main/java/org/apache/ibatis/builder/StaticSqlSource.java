@@ -30,6 +30,7 @@ import org.apache.ibatis.session.Configuration;
 public class StaticSqlSource implements SqlSource {
 
   private final String sql;
+  // 存储每个sql中#{}占位符指定的参数名,以及该参数对应的javaType,jdbcType,typeHandler等信息.
   private final List<ParameterMapping> parameterMappings;
   private final Configuration configuration;
 

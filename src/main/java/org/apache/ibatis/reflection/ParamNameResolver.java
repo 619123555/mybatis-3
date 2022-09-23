@@ -35,6 +35,7 @@ public class ParamNameResolver {
 
   public static final String GENERIC_NAME_PREFIX = "param";
 
+  // 项目必须使用Java8编译,并且启动时加上-parameters参数,新增于3.4.1
   private final boolean useActualParamName;
 
   /**
@@ -89,7 +90,7 @@ public class ParamNameResolver {
         // @Param was not specified.
         // 该参数没有对应的@Param注解,则根据配置决定是否使用参数实际名称作为其名称.
         if (useActualParamName) {
-          // 根据索引下标,获取用户定义的参数名称.
+          // 根据索引下标,获取用户定义的参数名称(项目必须使用Java8编译,并且启动时加上-parameters参数,新增于3.4.1).
           name = getActualParamName(method, paramIndex);
         }
         if (name == null) {

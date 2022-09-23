@@ -78,4 +78,12 @@
   <delete id="delete">
         delete from emp where empno = #{empno}
     </delete>
+
+
+  <select id="selectByStartingWithName" resultMap="BaseResultMap">
+    select * from users where
+    <foreach collection="nameList" separator="or" item="item" open="(" close=")">
+      `name` LIKE concat('%',#{item},'%')
+    </foreach>
+  </select>
 </mapper>

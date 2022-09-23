@@ -114,9 +114,7 @@ public class XMLStatementBuilder extends BaseBuilder {
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
 
-    // 将sql语句标签的内容解析成SqlSource对象.
-    // 一般是DynamicSqlSource(sql文本中存在${}占位符或使用了动态sql(<if>,<trim>)相关标签).
-    // StaticSqlSource(存在#{}占位符).
+    // 获取该select,update标签对应的解释器集合,并将该集合封装到MixedSqlNode对象中,后续通过该对象对sql标签进行解析.
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     // 获取当前标签用户设置的语句类型(STATEMENT|PREPARED|CALLABLE),默认Prepared(预处理语句,可防止sql注入).
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));

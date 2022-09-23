@@ -49,7 +49,7 @@ public class GenericTokenParser {
     char[] src = text.toCharArray();
     int offset = 0;
     final StringBuilder builder = new StringBuilder();
-    // 临时存储每个${}占位符中的参数名称.
+    // 临时存储每个${}或#{}占位符中的参数名称.
     StringBuilder expression = null;
     do {
       // 如果 开始字符串格式 不为空,并且前边是\\符号,则将\\符号删除并替换为 开始字符串格式.

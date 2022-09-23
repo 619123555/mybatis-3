@@ -41,6 +41,7 @@ public final class MappedStatement {
   private Integer timeout;
   private StatementType statementType;
   private ResultSetType resultSetType;
+  // DynamicSqlSource 或 RawSqlSource.
   private SqlSource sqlSource;
   private Cache cache;
   private ParameterMap parameterMap;
@@ -306,6 +307,9 @@ public final class MappedStatement {
   }
 
   public BoundSql getBoundSql(Object parameterObject) {
+    // 调用DynamicSqlSource或RawSqlSource对象的getBoundSql方法.
+    // 将sql中的#{}占位符替换为 ? 符号,
+    // 同时解析完了每一个#{}占位符指定的参数名的信息(javaType, jdbcType, TypeHandler等信息).
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     if (parameterMappings == null || parameterMappings.isEmpty()) {
