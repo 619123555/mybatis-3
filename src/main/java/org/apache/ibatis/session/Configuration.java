@@ -166,9 +166,9 @@ public class Configuration {
   //  1.Configuration -> properties标签中定义的k-v属性.
   //  2.properties文件中定义的k-v属性.
   protected Properties variables = new Properties();
-  // 反射工厂.
+  // 反射工厂,调用对象的set,get方法时,通过该反射工厂来创建Reflector对象,并通过该对象进行方法调用.
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
-  // 对象工厂.
+  // 对象工厂,mybatis创建对象时,会通过DefaultObjectFactory来实例化对象.
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   // 对象包装器工厂.
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
