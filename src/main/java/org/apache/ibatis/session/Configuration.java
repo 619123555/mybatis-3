@@ -137,7 +137,7 @@ public class Configuration {
   // 指定VFS(虚拟文件系统)的实现类(自定义VFS的实现类的全局限定名).
   protected Class<? extends VFS> vfsImpl;
   protected Class<?> defaultSqlProviderType;
-  // 利用本地缓存机制(Local Cache)防止循环引用和加速重复的嵌套查询.
+  // 本地缓存机制(Local Cache,一级缓存)的作用域,默认为会话级别,可改为 sql语句级别.
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
   // 没有为参数指定特定的JDBC类型时,默认的JDBC类型.
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;

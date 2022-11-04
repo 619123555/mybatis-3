@@ -194,6 +194,7 @@ public abstract class BaseExecutor implements Executor {
       if (configuration.getLocalCacheScope() == LocalCacheScope.STATEMENT) {
         // issue #482
         // 根据LocalCacheScope配置决定是否清空一级缓存.
+        // 当localCacheScope配置为 sql语句 级别时,执行每个sql都会在拿到sql结果后,添加到缓存集合中,再清空缓存列表,所以当并发高时,也会导致脏读.
         clearLocalCache();
       }
     }
