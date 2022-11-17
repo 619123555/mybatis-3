@@ -28,7 +28,7 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
- * 元对象,各种get,set方法有点ognl表达式的味道.
+ * 元对象,各种get,set方法,与MetaClass类似,通过ognl表达式,获取某对象或设置某对象的属性值.
  * 可以参考MetaObjectTest来跟踪调试,本上用到了reflection包下所有的类.
  *
  * @author Clinton Begin

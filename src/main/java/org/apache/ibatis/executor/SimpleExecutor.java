@@ -64,7 +64,7 @@ public class SimpleExecutor extends BaseExecutor {
       // 从连接池中获取连接器对象,并设置事务是否自动提交,超时时间等等属性.
       // 遍历之前参数名称解析器解析好的参数映射关系列表,并通过类型处理器,将java类型 -> jdbc类型,并设置到sql字符串中.
       stmt = prepareStatement(handler, ms.getStatementLog());
-      // 调用query方法执行sql语句,并通过ResultSetHandler完成结果集的映射.
+      // 调用query方法执行sql语句,并通过ResultSetHandler将数据库返回的字节流,转为java对象,来完成结果集的映射.
       return handler.query(stmt, resultHandler);
     } finally {
       closeStatement(stmt);

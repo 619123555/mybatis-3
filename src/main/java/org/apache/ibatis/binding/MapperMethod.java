@@ -39,6 +39,9 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * sql执行流程为-> 通过MapperProxy创建的代理对象来绑定mapper接口,
+ * 并为mapper接口中的每个方法创建一个MapperMethod对象,由MapperMethod来调用各个方法对应sql语句.
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss

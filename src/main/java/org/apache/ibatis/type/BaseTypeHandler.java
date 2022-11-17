@@ -31,6 +31,8 @@ import org.apache.ibatis.session.Configuration;
  * In other words, {@code null} value handling should be performed on subclass.
  * </p>
  *
+ * 模板方法模式
+ *
  * @author Clinton Begin
  * @author Simone Tripodi
  * @author Kzuki Shimizu

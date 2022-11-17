@@ -27,7 +27,7 @@ import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
- * 通过Reflector和ReflectorFactory的组合使用,实现对复杂的属性表达式的解析.
+ * 通过Reflector和ReflectorFactory的组合使用,实现对复杂的属性表达式的解析(user.userField, list[0]).
  *
  * @author Clinton Begin
  */

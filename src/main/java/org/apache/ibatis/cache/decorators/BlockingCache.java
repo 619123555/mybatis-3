@@ -24,7 +24,7 @@ import org.apache.ibatis.cache.CacheException;
 
 /**
  * <p>Simple blocking decorator
- *
+ * 阻塞缓存,同时只允许一个线程访问当前缓存对象.
  * <p>Simple and inefficient version of EhCache's BlockingCache decorator.
  * It sets a lock over a cache key when the element is not found in cache.
  * This way, other threads will wait until this element is filled instead of hitting the database.

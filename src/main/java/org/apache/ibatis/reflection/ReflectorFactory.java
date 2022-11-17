@@ -15,6 +15,7 @@
  */
 package org.apache.ibatis.reflection;
 
+// 根据指定的类型,获取对应的Reflector对象,后续用户使用Reflector对实例对象set或get属性.
 public interface ReflectorFactory {
 
   boolean isClassCacheEnabled();
