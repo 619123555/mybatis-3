@@ -26,21 +26,22 @@ import org.apache.ibatis.session.RowBounds;
 public interface EmpDao {
 
 
-    public SubEmp constructResultMapTest();
-    public Map<String, Object> associationResultMapTest(RowBounds rb, Integer empno, String ename);
-    public Emp customTypeHandlerTest();
-
-    public Emp findEmpByEmpno(Integer empno);
-
-    public List<Emp> selectAll();
-
-    public Emp findEmpByEmpnoAndEname(@Param("empno") Integer empno, @Param("ename") String ename);
-
-    public int insert(Emp emp);
-
-    public int update(Emp emp);
-
-    public int delete(Integer empno);
-
-    List<Emp> selectByStartingWithName(RowBounds rb, List<String> nameList);
+//    int insert(Emp emp, SubEmp subEmp);
+//    public SubEmp constructResultMapTest();
+    public List<Map<String, Object>> associationResultMapTest(String orderBy);
+//    public Emp customTypeHandlerTest();
+//
+//    public Emp findEmpByEmpno(Integer empno);
+//
+//    public List<Emp> selectAll();
+//
+//    public Emp findEmpByEmpnoAndEname(@Param("empno") Integer empno, @Param("ename") String ename);
+//
+//    public int insert(Emp emp);
+//
+//    public int update(Emp emp);
+//
+//    public int delete(Integer empno);
+//
+//    List<Emp> selectByStartingWithName(RowBounds rb, List<String> nameList);
 }

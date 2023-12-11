@@ -29,61 +29,65 @@
     <result column="ename" jdbcType="VARCHAR" property="ename"/>
   </resultMap>
 
-  <resultMap id="constructTestResultMap" type="com.personal.bean.SubEmp" extends="BaseResultMap">
-<!--    <constructor>-->
-<!--      <idArg column="empno" jdbcType="INTEGER" />-->
-<!--      <arg column="ename" jdbcType="VARCHAR" />-->
-<!--      <arg column="job" jdbcType="VARCHAR" />-->
-<!--      <arg name="map" column="empno" select="associationResultMapTest" />-->
-<!--    </constructor>-->
-  </resultMap>
-  <select id="constructResultMapTest" resultMap="constructTestResultMap">
-    select * from emp
-  </select>
+<!--  <insert id="insert" useGeneratedKeys="true" keyProperty="emp.empno">-->
+<!--    insert into emp (ename, job) values (#{emp.ename}, #{emp.job})-->
+<!--  </insert>-->
+
+<!--  <resultMap id="constructTestResultMap" type="com.personal.bean.SubEmp" extends="BaseResultMap">-->
+<!--&lt;!&ndash;    <constructor>&ndash;&gt;-->
+<!--&lt;!&ndash;      <idArg column="empno" jdbcType="INTEGER" />&ndash;&gt;-->
+<!--&lt;!&ndash;      <arg column="ename" jdbcType="VARCHAR" />&ndash;&gt;-->
+<!--&lt;!&ndash;      <arg column="job" jdbcType="VARCHAR" />&ndash;&gt;-->
+<!--&lt;!&ndash;      <arg name="map" column="empno" select="associationResultMapTest" />&ndash;&gt;-->
+<!--&lt;!&ndash;    </constructor>&ndash;&gt;-->
+<!--  </resultMap>-->
+<!--  <select id="constructResultMapTest" resultMap="constructTestResultMap">-->
+<!--    select * from emp-->
+<!--  </select>-->
 
   <resultMap id="associationTestResultMap" type="hashmap" extends="BaseResultMap">
     <result column="job" jdbcType="VARCHAR" property="job" />
 <!--    <association property="map" javaType="hashmap" column="empno" select="customTypeHandlerTest"/>-->
   </resultMap>
   <select id="associationResultMapTest" resultMap="associationTestResultMap">
-    select * from emp
-    <if test="empno != null">
-      where empno = #{empno}
-    </if>
+    select * from emp #{orderBy}
+<!--    <if test="empno != null">-->
+<!--      where empno = #{empno}-->
+<!--    </if>-->
   </select>
 
-  <resultMap id="customTypeHandlerTestResult" type="hashmap">
-    <result column="empno" jdbcType="INTEGER" property="empno"/>
-    <result column="ename" jdbcType="VARCHAR" property="ename" typeHandler="com.personal.test.SecurityCustomerTypeHandler"/>
-  </resultMap>
-  <select id="customTypeHandlerTest" resultMap="customTypeHandlerTestResult">
-    select empno, ename from emp
-  </select>
+<!--  <resultMap id="customTypeHandlerTestResult" type="hashmap">-->
+<!--    <result column="empno" jdbcType="INTEGER" property="empno"/>-->
+<!--    <result column="ename" jdbcType="VARCHAR" property="ename" typeHandler="com.personal.test.SecurityCustomerTypeHandler"/>-->
+<!--  </resultMap>-->
+<!--  <select id="customTypeHandlerTest" resultMap="customTypeHandlerTestResult">-->
+<!--    select empno, ename from emp-->
+<!--  </select>-->
 
-  <select id="findEmpByEmpno" resultType="com.personal.bean.Emp">
-        select * from emp where empno = #{empno}
-  </select>
-  <select id="findEmpByEmpnoAndEname" resultType="com.personal.bean.Emp">
-        select * from emp where empno = #{empno} and ename = #{ename}
-  </select>
-  <select id="selectAll" resultType="com.personal.bean.Emp">
-        select * from emp
-  </select>
-  <insert id="insert">
-        insert into emp(empno,ename) values(#{empno},#{ename})
-  </insert>
-  <update id="update">
-        update emp set ename=#{ename} where empno = #{empno}
-    </update>
-  <delete id="delete">
-        delete from emp where empno = #{empno}
-    </delete>
+<!--  <select id="findEmpByEmpno" resultType="com.personal.bean.Emp">-->
+<!--        select * from emp where empno = #{empno}-->
+<!--  </select>-->
+<!--  <select id="findEmpByEmpnoAndEname" resultType="com.personal.bean.Emp">-->
+<!--        select * from emp where empno = #{empno} and ename = #{ename}-->
+<!--  </select>-->
+<!--  <select id="selectAll" resultType="com.personal.bean.Emp">-->
+<!--        select * from emp-->
+<!--  </select>-->
+<!--  <insert id="insert">-->
+<!--        insert into emp(empno,ename) values(#{empno},#{ename})-->
+<!--  </insert>-->
+<!--  <update id="update">-->
+<!--        update emp set ename=#{ename} where empno = #{empno}-->
+<!--    </update>-->
+<!--  <delete id="delete">-->
+<!--        delete from emp where empno = #{empno}-->
+<!--    </delete>-->
 
 
-  <select id="selectByStartingWithName" resultMap="BaseResultMap">
-    select * from users where
-    <foreach collection="nameList" separator="or" item="item" open="(" close=")">
-      `name` LIKE concat('%',#{item},'%')
-    </foreach>
-  </select>
+<!--  <select id="selectByStartingWithName" resultMap="BaseResultMap">-->
+<!--    select * from users where-->
+<!--    <foreach collection="nameList" separator="or" item="item" open="(" close=")">-->
+<!--      `name` LIKE concat('%',#{item},'%')-->
+<!--    </foreach>-->
+<!--  </select>-->
 </mapper>

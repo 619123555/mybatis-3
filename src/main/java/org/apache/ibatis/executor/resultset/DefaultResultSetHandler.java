@@ -352,7 +352,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
       throws SQLException {
     DefaultResultContext<Object> resultContext = new DefaultResultContext<>();
     ResultSet resultSet = rsw.getResultSet();
+    // 将起始索引下标设置为rowBounds中指定的offset.
     skipRows(resultSet, rowBounds);
+    // shouldProcessMoreRows()方法中会判断当前rowBounds对象中设置的limit是否大于已经处理过的行数,当等于limit限制时,则退出循环.
     while (shouldProcessMoreRows(resultContext, rowBounds) && !resultSet.isClosed() && resultSet.next()) {
       ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(resultSet, resultMap, null);
       Object rowValue = getRowValue(rsw, discriminatedResultMap, null);
